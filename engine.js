@@ -10,6 +10,7 @@
 */
 console.log("Electoria Engine\nEngine Started")
 var Engine_db = new Map()
+var tempDatabase = new Map()
 var Engine_canvas = document.getElementById("canvas")
 const Engine_c = Engine_canvas.getContext('2d')
 Engine_Components = []

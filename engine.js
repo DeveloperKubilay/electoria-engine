@@ -473,25 +473,26 @@ if(findSide(data,z,{}) == "top"){
 }else if(findSide(data,z,{}) == "right"){
    collisionout(data.name,z.name,"right")
    if(data.collision == 3) return;
-   if(data.scale.x+z.position.x+z.scale.x > Engine_canvas.width){
+   if(data.inscreen && data.scale.x+z.position.x+z.scale.x > Engine_canvas.width){
       data.position.x = Engine_canvas.width-data.scale.x
       z.position.x = data.position.x-z.scale.x
       if(z.physic && z.physic.status && z.physic.x) z.physic.x = -z.physic.x
-   }else if(z.position.x < 0){
+   }else if(data.inscreen && z.position.x < 0){
       z.position.x = 0
       data.position.x = z.scale.x
       if(data.physic && data.physic.status && data.physic.x) data.physic.x = -data.physic.x
    }else {
-      if(data.collision == 1){
-         if(z.physic && z.physic.status){
-         z.position.x = data.position.x-z.scale.x
-         z.physic.x = -z.physic.x
+      if(z.physic && z.physic.status && data.physic){
+         if(data.physic.x && data.physic.x < 0){
+           data.position.x = z.position.x+z.scale.x
+          if(z.collision ==2) {z.physic.x = data.physic.x*1.1;}else{data.physic.x = -data.physic.x}
+         }else{
+         z.position.x = data.position.x-z.scale.x 
+         if(data.collision ==2) {data.physic.x = z.physic.x*1.01}else{z.physic.x = -z.physic.x}
+      }
       }else{
           data.position.x = z.position.x+z.scale.x
          if(data.physic && data.physic.status && data.physic.x) data.physic.x = -data.physic.x
-      }}else{
-         data.position.x = z.position.x+z.scale.x
-         z.position.x = z.position.x+(data.physic && data.physic.status && data.physic.x || 0)*2
       }
    }
 }else if(findSide(data,z,{}) == "bottom"){collisionout(data.name,z.name,"bottom")

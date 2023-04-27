@@ -29,6 +29,14 @@ Engine_mouselocation = {}
 Engine_database = {}
 Engine_autocomponentsound = new Map()
 Engine_gamerunning = true
+Engine_Virtualshadow = {
+   time:0,
+   realnexttime:60000,
+   height:5,
+   width:5,
+   color:"rgba(0, 0, 0, 0.5)"
+}
+Engine_Virtualshadowitems = []
 
 editdisplay(window.innerWidth,window.innerHeight);
 
@@ -445,14 +453,14 @@ function findSide(data, z, tempdata) {
 
 function findcollision(data){
    Engine_Components.sort((a, b) => Engine_db.get(b).layer- Engine_db.get(a).layer)
-   Engine_Components.map((z) => {
+   Engine_Components.map((z,fside) => {
      z = getData(z); if(!z || !z.collision || z.name == data.name) return;
      if (
       data.position.y + data.scale.y >= z.position.y && data.position.y <= z.position.y + z.scale.y &&
       data.position.x + data.scale.x >= z.position.x && data.position.x <= z.position.x + z.scale.x
      ) {
-
-if(findSide(data,z,{}) == "top"){
+fside = findSide(data,z,{})
+if(fside == "top"){
    collisionout(data.name,z.name,"top")
    if(data.collision == 3) return;
   if(data.inscreen && data.position.y < 0){
@@ -471,7 +479,7 @@ if(findSide(data,z,{}) == "top"){
       if(data.collision ==2){data.position.y = z.position.y-data.scale.y-(z.physic && z.physic.status && z.physic.y || 0)
       }else{z.position.y = data.position.y+data.scale.y-(z.physic && z.physic.status && z.physic.y || 0)}
    }
-}else if(findSide(data,z,{}) == "right"){
+}else if(fside == "right"){
    collisionout(data.name,z.name,"right")
    if(data.collision == 3) return;
    if(data.inscreen && data.scale.x+z.position.x+z.scale.x > Engine_canvas.width){
@@ -496,8 +504,8 @@ if(findSide(data,z,{}) == "top"){
          if(data.physic && data.physic.status && data.physic.x) data.physic.x = -data.physic.x
       }
    }
-}else if(findSide(data,z,{}) == "bottom"){collisionout(data.name,z.name,"bottom")
-}else if(findSide(data,z,{}) == "left"){collisionout(data.name,z.name,"left")}
+}else if(fside == "bottom"){collisionout(data.name,z.name,"bottom")
+}else if(fside == "left"){collisionout(data.name,z.name,"left")}
    }else{if(data.physic && data.physic.status){data.physic.flocky = false}}
    });
    Engine_db.set(data.name,data)
@@ -523,7 +531,6 @@ function animatemanager(data){
    if(data.hasOwnProperty('rotate')) { Engine_c.restore();}
    Engine_db.set(data.name,data)
 }
-
 
 function backgroundupdate(){
    if(Engine_gamerunning) {
@@ -1001,3 +1008,20 @@ function autocomponentsound(set,sound,data,z,area){
    clearInterval(Engine_autocomponentsound.get(sound))
    Engine_autocomponentsound.delete(sound)
 }}
+
+function autoshaders(set,player){
+ if(set == true){Engine_Virtualshadowitems.push(player)}else{Engine_Virtualshadowitems = Engine_Virtualshadowitems.filter(z=>z != player)}
+}
+
+if(Engine_onload.autoshaders){
+setInterval(()=>{
+   Engine_Virtualshadow.time += 1
+   if(Engine_Virtualshadow.time == 24) Engine_Virtualshadow.time = 0
+   Engine_Virtualshadowitems.map((x)=>{
+      x = getData(x)
+      if(!x.shadow.color) x.shadow.color = Engine_Virtualshadow.color
+     x.shadow.x = -((x.scale.x*Engine_Virtualshadow.width)/100)*((Engine_Virtualshadow.time-12)/12)
+     x.shadow.y = ((x.scale.y*Engine_Virtualshadow.height)/100)*Math.abs((Engine_Virtualshadow.time-12))/12
+   })
+},Engine_Virtualshadow.realnexttime)
+}

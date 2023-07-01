@@ -279,6 +279,20 @@ function updateData(updatedata){
       if(updatedata.position){
          if(updatedata.inscreen === false || updatedata.inscreen) this.data.inscreen = updatedata.inscreen
    if(this.data.inscreen){
+      if(updatedata.position) {               
+         if(updatedata.position.hasOwnProperty('x')) {
+            if(typeof updatedata.position.x === "string" && updatedata.position.x.split("+").length == 2 ||
+            typeof updatedata.position.x === "string" && updatedata.position.x.split("-").length == 2) {
+              this.data.position.x = this.data.position.x+Number(updatedata.position.x)
+            }else this.data.position.x = Number(updatedata.position.x)
+         }
+         if(updatedata.position.hasOwnProperty('y')) {
+            if(typeof updatedata.position.y === "string" && updatedata.position.y.split("+").length == 2 ||
+            typeof updatedata.position.y === "string" && updatedata.position.y.split("-").length == 2) {
+              this.data.position.y = this.data.position.y+Number(updatedata.position.y)
+             }else this.data.position.y = Number(updatedata.position.y)
+         }
+      }
        if(Math.sign(updatedata.position.x) === -1 &&
        -Number(this.data.position.x) > Number(updatedata.position.x) || 
        Math.sign(updatedata.position.x) === 1 &&
@@ -300,20 +314,7 @@ function updateData(updatedata){
         Number(this.data.position.y)+Number(this.data.scale.y)+Number(updatedata.position.y) > Engine_canvas.height) {
          this.data.position.y = Engine_canvas.height-Number(this.data.scale.y)
         }
-      }else {
-      if(updatedata.position) {               
-           if(updatedata.position.hasOwnProperty('x')) {
-              if(typeof updatedata.position.x === "string" && updatedata.position.x.split("+").length == 2 ||
-              typeof updatedata.position.x === "string" && updatedata.position.x.split("-").length == 2) {
-                this.data.position.x = this.data.position.x+Number(updatedata.position.x)
-              }else this.data.position.x = Number(updatedata.position.x)
-           }
-           if(updatedata.position.hasOwnProperty('y')) {
-              if(typeof updatedata.position.y === "string" && updatedata.position.y.split("+").length == 2 ||
-              typeof updatedata.position.y === "string" && updatedata.position.y.split("-").length == 2) {
-                this.data.position.y = this.data.position.y+Number(updatedata.position.y)
-               }else this.data.position.y = Number(updatedata.position.y)
-           }}}
+      }
    }else{
       if(updatedata.position) {
         if(updatedata.position.hasOwnProperty('x')) {

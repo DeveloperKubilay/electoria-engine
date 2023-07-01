@@ -1,1 +1,66 @@
-<h1>Hello world!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+    <title>Electoria-engine</title>
+</head>
+<body>
+    <h1 class="text1" >Electoria engine demo games</h1>
+    <div id="links">
+    </div>
+
+<script>
+
+$.ajax({
+    url: "https://api.github.com/repos/DeveloperKubilay/electoria-engine/contents/docs/demoGames",
+    method: "GET",
+    dataType: "json",
+    success: function(response) {
+        response.filter((x)=>x.type == "dir").map((x)=>{
+            console.log(x)
+            x.url = "https://developerkubilay.github.io/electoria-engine/demoGames/"+x.name+"/ingame.html"
+            $("#links").append(`<a class="text2" href=${x.url}>${x.name}</a><br>`)
+        })
+        
+        
+    },
+    error: function(error) {
+        console.log("Hata: " + error);
+    }
+});
+
+    </script>
+
+<style>
+    body{
+background: linear-gradient(45deg, rgb(26, 1, 117) 10%, rgba(225, 5, 34, 0) 90%) repeat scroll 0% 0%
+}
+
+.text1{
+    font-family: 'Roboto',sans-serif;
+    color:#ddd;
+    text-align: center;
+    position: relative;
+    top:100px
+}
+#links{
+    position: relative;
+    top:100px;
+    font-family: 'Roboto',sans-serif;
+    color:#ddd;
+    text-align: center;
+    font-size:25px;
+}
+.text2{
+    text-decoration: none;
+}
+
+</style>
+    
+</body>
+</html>

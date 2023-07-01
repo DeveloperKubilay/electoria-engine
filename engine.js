@@ -441,7 +441,6 @@ function findSide(data, z, tempdata) {
   tempdata.height = (data.scale.y + z.scale.y) / 2;
   tempdata.crossWidth = tempdata.width * tempdata.dy;
   tempdata.crossHeight = tempdata.height * tempdata.dx;
-
   if (Math.abs(tempdata.dx) <= tempdata.width && Math.abs(tempdata.dy) <= tempdata.height) {
     if (tempdata.crossWidth > tempdata.crossHeight) {return (tempdata.crossWidth > -tempdata.crossHeight) ? 'bottom' : 'left';
     } else { return (tempdata.crossWidth > -tempdata.crossHeight) ? 'right' : 'top';}
@@ -461,7 +460,7 @@ function findcollision(data){
      ) {
 fside = findSide(data,z,{})
 if(fside == "top"){
-   collisionout(data.name,z.name,"top")
+   collisionout(data.name,z.name,"top",fside)
    if(data.collision == 3) return;
   if(data.inscreen && data.position.y < 0){
       z.position.y = data.scale.y+1
@@ -480,7 +479,7 @@ if(fside == "top"){
       }else{z.position.y = data.position.y+data.scale.y-(z.physic && z.physic.status && z.physic.y || 0)}
    }
 }else if(fside == "right"){
-   collisionout(data.name,z.name,"right")
+   collisionout(data.name,z.name,"right",fside)
    if(data.collision == 3) return;
    if(data.inscreen && data.scale.x+z.position.x+z.scale.x > Engine_canvas.width){
       data.position.x = Engine_canvas.width-data.scale.x
@@ -504,8 +503,8 @@ if(fside == "top"){
          if(data.physic && data.physic.status && data.physic.x) data.physic.x = -data.physic.x
       }
    }
-}else if(fside == "bottom"){collisionout(data.name,z.name,"bottom")
-}else if(fside == "left"){collisionout(data.name,z.name,"left")}
+}else if(fside == "bottom"){collisionout(data.name,z.name,"bottom",fside)
+}else if(fside == "left"){collisionout(data.name,z.name,"left",fside)}
    }else{if(data.physic && data.physic.status){data.physic.flocky = false}}
    });
    Engine_db.set(data.name,data)

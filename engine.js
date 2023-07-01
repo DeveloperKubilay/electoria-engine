@@ -737,6 +737,7 @@ function collisionout(){return;}
 function togame(x){return;}
 function stopgame(){Engine_gamerunning = false}
 function rungame(){Engine_gamerunning = true}
+function reloadgame(){location.reload()}
 function clipboard(x){return navigator.clipboard.writeText(x);}
 function getLanguage(){return navigator.language}
 function getPlatform(){

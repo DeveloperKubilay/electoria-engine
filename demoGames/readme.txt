@@ -1,1 +1,0 @@
-have fun, enter in ingame.html to start the game

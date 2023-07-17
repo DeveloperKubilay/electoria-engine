@@ -45,7 +45,7 @@ Engine_canvas.width = x
 Engine_canvas.height = y
 backgroundupdate()
 }
-if(!isNaN(Number(Engine_onload.fps))) setInterval(()=>backgroundupdate(),Number(Engine_onload.fps))
+if(!isNaN(Number(Engine_onload.fps))) setInterval(()=>backgroundupdate(),1000/Number(Engine_onload.fps))
 class Text {
  constructor(newdata) {
  if(!newdata || !newdata.name|| !newdata.position || !newdata.position.hasOwnProperty('x') || !newdata.position.hasOwnProperty('y')) return;
@@ -760,23 +760,24 @@ function getPlatform(){
 }
 function sendengine(x){
    console.log(JSON.stringify({
-         toengine: true,
-           fullscreen:x.fullscreen,
-           center:x.center,
-           exit:x.exit,
-           appresize: x.appresize && {
-               x:x.appresize && x.appresize.x,
-               y:x.appresize && x.appresize.y,
-           },
-           changestatusbar:x.changestatusbar,
-           sendalertbox:x.sendalertbox,
-           changescreenstatus:x.changescreenstatus,
-           sendvibrate:x.sendvibrate && Number(x.sendvibrate),
-           dbset:x.dbset && x.dbset.length == 2 && [x.dbset[0],x.dbset[1]],
-           dbget:x.dbget,
-           dbreset:x.dbreset,
-           dbdel:x.dbdel,
-   }))
+              toengine: true,
+              fullscreen:x.fullscreen,
+              center:x.center,
+              exit:x.exit,
+              appresize: x.appresize && {
+                  x:x.appresize && x.appresize.x,
+                  y:x.appresize && x.appresize.y,
+              },
+              changestatusbar:x.changestatusbar,
+              sendalertbox:x.sendalertbox,
+              changescreenstatus:x.changescreenstatus,
+              sendvibrate:x.sendvibrate && Number(x.sendvibrate),
+              dbset:x.dbset && x.dbset.length == 2 && [x.dbset[0],x.dbset[1]],
+              dbget:x.dbget,
+              dbreset:x.dbreset,
+              dbdel:x.dbdel,
+              startpath:x.startpath
+       }))
 }
 
 //Inputs

@@ -37,6 +37,7 @@ Engine_Virtualshadow = {
    color:"rgba(0, 0, 0, 0.5)"
 }
 Engine_Virtualshadowitems = []
+Engine_stablefps = ""
 
 editdisplay(window.innerWidth,window.innerHeight);
 
@@ -45,7 +46,11 @@ Engine_canvas.width = x
 Engine_canvas.height = y
 backgroundupdate()
 }
-if(!isNaN(Number(Engine_onload.fps))) setInterval(()=>backgroundupdate(),1000/Number(Engine_onload.fps))
+if(!isNaN(Number(Engine_onload.fps))) Engine_updatefps(Engine_onload.fps)
+function Engine_updatefps(x){
+   clearInterval(Engine_stablefps)
+   Engine_stablefps = setInterval(()=>backgroundupdate(),1000/Number(x))
+}
 class Text {
  constructor(newdata) {
  if(!newdata || !newdata.name|| !newdata.position || !newdata.position.hasOwnProperty('x') || !newdata.position.hasOwnProperty('y')) return;

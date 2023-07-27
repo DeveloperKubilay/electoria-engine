@@ -1,4 +1,5 @@
 var Playerupdaterdb = new Map()
+var Animateupdaterdb = new Map()
 
 function connectserver(url,auth){
 try{ return io(("ws://"+url),{auth:auth,transports: ['websocket'] });
@@ -37,4 +38,24 @@ function hammercanvas(location,time){return;}
 async function getIP() {
   try {return await(await fetch('https://api.ipify.org')).text();
   } catch (error) {return;}
+}
+
+function Animater(ctype,player,array,type,time,loop){
+  if(ctype == true){
+    var tempanimation = 0;
+  Playerupdaterdb.set(player,setInterval(()=>{
+    if(tempanimation == array.length) {
+      if(!loop) return Animater(false,player)
+      tempanimation = 0;
+    }
+    updateData({
+      name: player,
+      [type]:array[tempanimation]
+    })
+    tempanimation++;
+  },time || 1000))
+ }else{
+  clearInterval(Animateupdaterdb.get(player))
+  Animateupdaterdb.delete(player)
+ }
 }

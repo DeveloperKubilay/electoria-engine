@@ -415,7 +415,7 @@ data.inscreen && data.position.y + data.physic.y < 0){
        if(data.physic.yfriction) {data.physic.y = -data.physic.y * Number(data.physic.yfriction)
        }else{ data.physic.y = -data.physic.y * Number(Engine_onload.yfriction)};}
 }else if(!data.physic.flocky){
-if(data.physic.gravity == 0) data.physic.y += data.physic.gravity || Number(Engine_onload.gravity);
+data.physic.y += data.physic.gravity || Number(Engine_onload.gravity);
 data.physic.locky = false;
 physicout(data.name,{flying:true})}
 if(data.position.x + data.scale.x + data.physic.x >= Engine_canvas.width && data.inscreen 

@@ -754,12 +754,18 @@ function getPlatform(){
    }
    if(navigator.userAgent.match(/Android/i)){
       tempgp.platform = "Android"
-   }else if(navigator.platform == "Win32" || navigator.platform == "Windows"){
-      tempgp.platform = "Windows"
-   }else if(navigator.platform === "Linux x86_64" || navigator.platform === "Linux i686" || navigator.platform === "Linux armv7l"){
-      tempgp.platform = "Linux"
-   }else if(navigator.platform === "MacIntel" || navigator.platform === "MacPPC"){
-      tempgp.platform = "Macos"
+   }else{
+      if(navigator.userAgent.includes("Electron")){
+      if(navigator.platform == "Win32" || navigator.platform == "Windows"){
+         tempgp.platform = "Windows"
+       }else if(navigator.platform === "Linux x86_64" || navigator.platform === "Linux i686" || navigator.platform === "Linux armv7l"){
+         tempgp.platform = "Linux"
+       }else if(navigator.platform === "MacIntel" || navigator.platform === "MacPPC"){
+         tempgp.platform = "Macos"
+       }
+      }else{
+         tempgp.platform = "Webbrowser"
+      }
    }
    return tempgp
 }

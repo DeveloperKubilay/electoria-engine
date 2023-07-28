@@ -38,6 +38,7 @@ Engine_Virtualshadow = {
 }
 Engine_Virtualshadowitems = []
 Engine_stablefps = ""
+Engine_backgroundcolor = "black"
 
 editdisplay(window.innerWidth,window.innerHeight);
 
@@ -711,11 +712,19 @@ function backgroundreset() {
       }else{
     Engine_c.drawImage(document.getElementById(Engine_background), 0, 0,Engine_canvas.width,Engine_canvas.height); 
    }}catch{
-      Engine_c.fillStyle = "black"
-      Engine_c.fillRect(0, 0,Engine_canvas.width,Engine_canvas.height);      
+      if(Engine_backgroundcolor){
+         Engine_c.fillStyle = Engine_backgroundcolor
+         Engine_c.fillRect(0, 0,Engine_canvas.width,Engine_canvas.height);
+        }else{
+         Engine_c.clearRect(0, 0,Engine_canvas.width,Engine_canvas.height);
+        }   
    }}else {
-      Engine_c.fillStyle = "black"
-      Engine_c.fillRect(0, 0,Engine_canvas.width,Engine_canvas.height);
+      if(Engine_backgroundcolor){
+       Engine_c.fillStyle = Engine_backgroundcolor
+       Engine_c.fillRect(0, 0,Engine_canvas.width,Engine_canvas.height);
+      }else{
+       Engine_c.clearRect(0, 0,Engine_canvas.width,Engine_canvas.height);
+      }
    }
 }
 function hidecursor(){document.body.style.cursor = "none";}

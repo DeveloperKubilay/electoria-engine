@@ -429,7 +429,7 @@ if(data.position.x + data.scale.x + data.physic.x >= Engine_canvas.width && data
 }else {
    if (data.physic.x > 0.001 && data.physic.x < 1 || data.physic.x < -0.001 && data.physic.x > -1) {
       data.physic.x = 0;
-      physicout(data.name,{going:true})
+      physicout(data.name,{bounced:true})
     }else{
    if(data.physic.x && data.physic.xfriction) {data.physic.x += data.physic.x * -Number(data.physic.xfriction);}
    else{data.physic.x += data.physic.x * -Number(Engine_onload.xfriction)}

@@ -158,7 +158,7 @@ class Textbox {
 	 textbox.addEventListener("keydown", function(event) {
 			if (event.key === "Enter") {
         event.data = event.target.value
-        eval(getData(newdata.name).eval || "")
+       try{ eval(getData(newdata.name).eval || "")}catch{}
 		  if(getData(newdata.name).removeable) removeData(newdata.name)
 			}
 		});
@@ -193,7 +193,7 @@ class Video {
     if(newdata.hasOwnProperty('autoplay')){ video.autoplay = newdata.autoplay}else{newdata.autoplay= true}
    document.querySelector('#screen').appendChild(video);
    video.addEventListener("ended", function() {
-      eval(getData(newdata.name).eval || "")
+     try{ eval(getData(newdata.name).eval || "")}catch{}
       if(getData(newdata.name).removeable) removeData(newdata.name)
     });
       newdata.type = "video"

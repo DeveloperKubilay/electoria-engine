@@ -40,12 +40,12 @@ async function getIP() {
   } catch (error) {return;}
 }
 
-function Animater(ctype,player,array,type,time,loop){
+function Animator(ctype,player,array,type,time,loop){
   if(ctype == true){
     var tempanimation = 0;
   Playerupdaterdb.set(player,setInterval(()=>{
     if(tempanimation == array.length) {
-      if(!loop) return Animater(false,player)
+      if(!loop) return Animator(false,player)
       tempanimation = 0;
     }
     updateData({

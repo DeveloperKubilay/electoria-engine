@@ -1,5 +1,6 @@
 var Playerupdaterdb = new Map()
 var Animateupdaterdb = new Map()
+var Engine_monitorhz = 0
 
 function connectserver(url,auth){
 try{ return io(("ws://"+url),{auth:auth,transports: ['websocket'] });
@@ -59,3 +60,17 @@ function Animator(ctype,player,array,type,time,loop){
   Animateupdaterdb.delete(player)
  }
 }
+
+function Engine_testfps(timestamp) {
+  if (timestamp) return function(){
+      const liste = [30, 60, 75, 120, 144, 240, 360];
+      let eny = liste[0];
+      for (let i = 1; i < liste.length; i++) {
+        if (Math.abs(liste[i] - timestamp) < Math.abs(eny - timestamp)) {
+          eny = liste[i];
+      }}
+      Engine_monitorhz = eny
+  }()
+  requestAnimationFrame(Engine_testfps);
+}
+requestAnimationFrame(Engine_testfps);

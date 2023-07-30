@@ -1,12 +1,12 @@
 Engine_onload = 
 {
-    fps:"auto",//you can select "75" or auto = 250
-    onlyonscreen:true,//rendering off screen
-    splitelimit:"2000",//sprites on max screen
-    backgroundspeed:"3000",//background change rate
-    gravity:"0.3",
-    yfriction:"0.4",
-    xfriction:"0.08",
+    fps:"auto",//you can select "75","vsync" or "auto" (auto = 250),
+    onlyonscreen:true,//just render what's on the screen (perfect for optomisation)
+    splitelimit:"20000",//sprites on max screen
+    backgroundspeed:"250",//transition speed to the next image if background is animated
+    gravity:"0.3",//default physics settings
+    yfriction:"0.4",//default physics settings
+    xfriction:"0.08",//default physics settings
     forcepresstime:"60",//keypress fps
-    autoshaders:true//something like the shadow of the sun
+    autoshaders:60000//something like the shadow of the sun,If you type 0 it closes,you enter in-game time
 }

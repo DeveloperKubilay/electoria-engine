@@ -47,7 +47,7 @@ Engine_canvas.width = x
 Engine_canvas.height = y
 backgroundupdate()
 }
-if(!isNaN(Number(Engine_onload.fps))) Engine_updatefps(Engine_onload.fps)
+if(Engine_onload.fps != "vsync" && !isNaN(Number(Engine_onload.fps))) Engine_updatefps(Engine_onload.fps)
 function Engine_updatefps(x){
    clearInterval(Engine_stablefps)
    Engine_stablefps = setInterval(()=>backgroundupdate(),1000/Number(x))

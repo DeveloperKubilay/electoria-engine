@@ -70,6 +70,7 @@ function Engine_testfps(timestamp) {
           eny = liste[i];
       }}
       Engine_monitorhz = eny
+      if(Engine_onload.fps == "vsync") Engine_updatefps(Engine_monitorhz)
   }()
   requestAnimationFrame(Engine_testfps);
 }

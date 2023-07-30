@@ -678,9 +678,9 @@ function backgroundmap(data){
 if(Engine_backgroundlocation.bottom < Engine_backgroundlocation.y || Engine_backgroundlocation.right < Engine_backgroundlocation.x)return;
  if(data.hasOwnProperty('x')) {
    if(typeof data.x === "string" && data.x.split("+").length == 2){
-   Engine_backgroundlocation.x = Engine_backgroundlocation.x+Number(data.x.split("+")[1])
+      Engine_backgroundlocation.x = Engine_backgroundlocation.x+Number(data.x.split("+")[1])
    }else if(typeof data.x === "string" && data.x.split("-").length == 2){
-   Engine_backgroundlocation.x = Engine_backgroundlocation.x-Number(data.x.split("-")[1])
+      Engine_backgroundlocation.x = Engine_backgroundlocation.x-Number(data.x.split("-")[1])
    }else{Engine_backgroundlocation.x = data.x}
  }else{data.x = 0}
  if(data.hasOwnProperty('y')) {
@@ -690,12 +690,14 @@ if(Engine_backgroundlocation.bottom < Engine_backgroundlocation.y || Engine_back
       Engine_backgroundlocation.y = Engine_backgroundlocation.y-Number(data.y.split("-")[1])
    }else{Engine_backgroundlocation.y = data.y}
  }else{data.y = 0}
-Engine_backgroundlocation.x = Math.max(Engine_backgroundlocation.left || 1, Math.min(
-   document.getElementById(Engine_background).width-Engine_canvas.width-data.x,Engine_backgroundlocation.x
-));
-Engine_backgroundlocation.y = Math.max(Engine_backgroundlocation.top || 1, Math.min(
-   document.getElementById(Engine_background).height-Engine_canvas.height-data.y,Engine_backgroundlocation.y
-));
+
+ if(Engine_backgroundlocation.x <= Engine_backgroundlocation.left) Engine_backgroundlocation.x = Engine_backgroundlocation.left
+ if(Engine_backgroundlocation.x >= Engine_backgroundlocation.right-Engine_backgroundlocation.dx)
+   Engine_backgroundlocation.x = Engine_backgroundlocation.right-Engine_backgroundlocation.dx
+
+   if(Engine_backgroundlocation.y <= Engine_backgroundlocation.top) Engine_backgroundlocation.y = Engine_backgroundlocation.top
+   if(Engine_backgroundlocation.y >= Engine_backgroundlocation.bottom-Engine_backgroundlocation.dy) 
+     Engine_backgroundlocation.y = Engine_backgroundlocation.bottom-Engine_backgroundlocation.dy
 }
 
 function backgroundreset() {

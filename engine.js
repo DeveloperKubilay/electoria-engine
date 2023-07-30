@@ -31,7 +31,6 @@ Engine_autocomponentsound = new Map()
 Engine_gamerunning = true
 Engine_Virtualshadow = {
    time:0,
-   realnexttime:60000,
    height:5,
    width:5,
    color:"rgba(0, 0, 0, 0.5)"
@@ -1037,7 +1036,7 @@ function autoshaders(set,player){
  if(set == true){Engine_Virtualshadowitems.push(player)}else{Engine_Virtualshadowitems = Engine_Virtualshadowitems.filter(z=>z != player)}
 }
 
-if(Engine_onload.autoshaders){
+if(Engine_onload.autoshaders != 0){
 setInterval(()=>{
    Engine_Virtualshadow.time += 1
    if(Engine_Virtualshadow.time == 24) Engine_Virtualshadow.time = 0
@@ -1047,5 +1046,5 @@ setInterval(()=>{
      x.shadow.x = -((x.scale.x*Engine_Virtualshadow.width)/100)*((Engine_Virtualshadow.time-12)/12)
      x.shadow.y = ((x.scale.y*Engine_Virtualshadow.height)/100)*Math.abs((Engine_Virtualshadow.time-12))/12
    })
-},Engine_Virtualshadow.realnexttime)
+},Engine_onload.autoshaders)
 }

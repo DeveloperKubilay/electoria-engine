@@ -747,6 +747,7 @@ function mouseup(location,component){return;}
 function mousedown(location,component){return;}
 function mousescroll(location,speed){return;}
 function touchmove(fingers){return;}
+function textboxfocus(name){return;}
 function touchstart(fingers){return;}
 function touchend(fingers){return;}
 function physicout(){return;}

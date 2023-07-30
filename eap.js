@@ -79,7 +79,7 @@ requestAnimationFrame(Engine_testfps);
 
 function require(x){
   fetch(x)
-  .then(response => response.text()) // Gelen yanıtı metin olarak alalım
+  .then(response => response.text())
   .then(data => {
     eval(data)
   }).catch(()=>{});

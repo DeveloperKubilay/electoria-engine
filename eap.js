@@ -8,11 +8,11 @@ try{ return io(("ws://"+url),{auth:auth,transports: ['websocket'] });
 }
 
 function anim(data){
-if(!data || !data.name || !data.position || !data.position.hasOwnProperty("x") || !data.position.hasOwnProperty("y") || !data.time)return;
+if(!data || !data.name || !data.position || !data.position.hasOwnProperty("x") || !data.position.hasOwnProperty("y"))return;
 anime({
   targets: getData(data.name).position,
   x: data.position.x,y: data.position.y,
-  duration: data.time,easing: data.hasOwnProperty("type") ? data.type : 'linear',
+  duration: data.time || 1000,easing: data.hasOwnProperty("type") ? data.type : 'linear',
   complete:function(){updateData({name: data.name,physic:{x:0,y:0}})}
 });
 }
@@ -75,3 +75,35 @@ function Engine_testfps(timestamp) {
   requestAnimationFrame(Engine_testfps);
 }
 requestAnimationFrame(Engine_testfps);
+
+
+function require(x){
+  fetch(x)
+  .then(response => response.text()) // Gelen yanıtı metin olarak alalım
+  .then(data => {
+    eval(data)
+  }).catch(()=>{});
+}
+function addstyle(url) {
+  var link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = url;
+  document.head.appendChild(link);
+}
+
+async function linkget(x){
+  return await fetch(x).then(response => response.text())
+}
+
+function getos(){
+  const sett = platform
+  return {
+    name:sett.name,
+    version:sett.version,
+    os:{
+      name:sett.os.family,
+      version:sett.os.version,
+      architecture: sett.os.architecture
+    },
+  }
+}

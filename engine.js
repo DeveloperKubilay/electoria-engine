@@ -281,8 +281,8 @@ function updateData(updatedata){
          }}
     }else if(this.data.type === "component"){
       if(updatedata.hasOwnProperty("collision")) this.data.collision = updatedata.collision
+      if(updatedata.inscreen === false || updatedata.inscreen) this.data.inscreen = updatedata.inscreen
       if(updatedata.position){
-         if(updatedata.inscreen === false || updatedata.inscreen) this.data.inscreen = updatedata.inscreen
    if(this.data.inscreen){
       if(updatedata.position) {               
          if(updatedata.position.hasOwnProperty('x')) {

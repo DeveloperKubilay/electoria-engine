@@ -147,6 +147,8 @@ class Textbox {
     if(!newdata.scale) newdata.scale = {x:"auto",y:"auto"}
 	 var textbox = document.createElement("input");
     textbox.style.position = 'absolute';
+    if(typeof newdata.position.x === "number" ) newdata.position.x = newdata.position.x+"px"
+    if(typeof newdata.position.y === "number" )newdata.position.y = newdata.position.y+"px"
     textbox.style.left = newdata.position.x;
     textbox.style.top = newdata.position.y;
     textbox.style.width = newdata.scale.x;
@@ -180,6 +182,8 @@ class Video {
     if(!newdata.scale) newdata.scale = {x:"auto",y:"auto"}
 	 var video = document.createElement('video');
     video.style.position = 'absolute';
+    if(typeof newdata.position.x === "number" ) newdata.position.x = newdata.position.x+"px"
+    if(typeof newdata.position.y === "number" )newdata.position.y = newdata.position.y+"px"
     video.style.left = newdata.position.x;
     video.style.top = newdata.position.y;
     video.style.width = newdata.scale.x;
@@ -210,8 +214,13 @@ function updateData(updatedata){
    this.data = Engine_db.get(updatedata.name)
    if(!this.data) return;
    if(this.data.type === "textbox" || this.data.type === "video"){
-      if(updatedata.position && updatedata.position.hasOwnProperty('x')) this.data.position.x = updatedata.position.x
-      if(updatedata.position && updatedata.position.hasOwnProperty('y')) this.data.position.y = updatedata.position.y
+      if(updatedata.position && updatedata.position.hasOwnProperty('x')) {
+         if(typeof updatedata.position.x === "number") updatedata.position.x = updatedata.position.x+"px"
+         this.data.position.x = updatedata.position.x}
+      if(updatedata.position && updatedata.position.hasOwnProperty('y')) {
+         if(typeof updatedata.position.y === "number")updatedata.position.y = updatedata.position.y+"px"
+         this.data.position.y = updatedata.position.y
+      }
       if(updatedata.scale && updatedata.scale.hasOwnProperty('x')) this.data.scale.x = updatedata.scale.x
       if(updatedata.scale && updatedata.scale.hasOwnProperty('y')) this.data.scale.y = updatedata.scale.y
       if(updatedata.hasOwnProperty('layer')) this.data.layer = updatedata.layer

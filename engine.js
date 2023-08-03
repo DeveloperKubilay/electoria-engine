@@ -730,6 +730,7 @@ function backgroundreset() {
 }
 function hidecursor(){document.body.style.cursor = "none";}
 function showcursor(){document.body.style.cursor = "default";}
+function editcursor(x){document.body.style.cursor = x;}
 function disablemouse(){hidecursor();Engine_enablemouse = false;Engine_mouselocation = {}}
 function enablemouse(){showcursor();Engine_enablemouse = true;Engine_mouselocation = {}}
 function getMouselocation(){return Engine_mouselocation}

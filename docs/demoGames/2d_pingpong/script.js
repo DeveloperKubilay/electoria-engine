@@ -1,4 +1,5 @@
-editdisplay(1024,720)
+setTimeout(()=>{
+  editdisplay(1024,720)
 
 
 var fast = 50;
@@ -133,3 +134,4 @@ touchmove = function(data){
   console.log((data.y-latesttouch).toFixed(0))
  player1.update({position:{y:data.y-latesttouch}})
 }
+},200)

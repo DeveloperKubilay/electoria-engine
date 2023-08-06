@@ -1,6 +1,7 @@
 var Playerupdaterdb = new Map()
 var Animateupdaterdb = new Map()
 var Engine_monitorhz = 0
+var moduleloaded = {t:0,c:0,u:false}
 
 function connectserver(url,auth){
 try{ return io(("ws://"+url),{auth:auth,transports: ['websocket'] });
@@ -78,10 +79,16 @@ requestAnimationFrame(Engine_testfps);
 
 
 function require(x){
+  moduleloaded.t++;
   fetch(x)
   .then(response => response.text())
   .then(data => {
+    moduleloaded.c++;
     eval(data)
+    if(moduleloaded.t == moduleloaded.c) {
+      modulesloaded(moduleloaded.u)
+      moduleloaded.u = true
+    }    
   }).catch(()=>{});
 }
 function addstyle(url) {
@@ -107,3 +114,5 @@ function getos(){
     },
   }
 }
+
+function modulesloaded(x){return;}

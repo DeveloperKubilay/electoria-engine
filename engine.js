@@ -292,45 +292,6 @@ function updateData(updatedata){
       if(updatedata.hasOwnProperty("collision")) this.data.collision = updatedata.collision
       if(updatedata.inscreen === false || updatedata.inscreen) this.data.inscreen = updatedata.inscreen
       if(updatedata.position){
-   if(this.data.inscreen){
-      if(updatedata.position) {               
-         if(updatedata.position.hasOwnProperty('x')) {
-            if(typeof updatedata.position.x === "string" && updatedata.position.x.split("+").length == 2 ||
-            typeof updatedata.position.x === "string" && updatedata.position.x.split("-").length == 2) {
-              this.data.position.x = this.data.position.x+Number(updatedata.position.x)
-            }else this.data.position.x = Number(updatedata.position.x)
-         }
-         if(updatedata.position.hasOwnProperty('y')) {
-            if(typeof updatedata.position.y === "string" && updatedata.position.y.split("+").length == 2 ||
-            typeof updatedata.position.y === "string" && updatedata.position.y.split("-").length == 2) {
-              this.data.position.y = this.data.position.y+Number(updatedata.position.y)
-             }else this.data.position.y = Number(updatedata.position.y)
-         }
-      }
-       if(Math.sign(updatedata.position.x) === -1 &&
-       -Number(this.data.position.x) > Number(updatedata.position.x) || 
-       Math.sign(updatedata.position.x) === 1 &&
-       Number(this.data.position.x)+Number(this.data.scale.x)+Number(updatedata.position.x) > Engine_canvas.width ||
-       Math.sign(updatedata.position.y) === -1 &&
-       -Number(this.data.position.y) > Number(updatedata.position.y) || 
-       Math.sign(updatedata.position.y) === 1 &&
-       Number(this.data.position.y)+Number(this.data.scale.y)+Number(updatedata.position.y) > Engine_canvas.height
-       ) {
-        if(Math.sign(updatedata.position.x) === -1 &&
-        -Number(this.data.position.x) > Number(updatedata.position.x)) this.data.position.x = 0
-        if(Math.sign(updatedata.position.x) === 1 &&
-        Number(this.data.position.x)+Number(this.data.scale.x)+Number(updatedata.position.x) > Engine_canvas.width) {
-         this.data.position.x = Engine_canvas.width-Number(this.data.scale.x)
-        }
-        if(Math.sign(updatedata.position.y) === -1 &&
-        -Number(this.data.position.y) > Number(updatedata.position.y)) this.data.position.y = 0
-        if(Math.sign(updatedata.position.y) === 1 &&
-        Number(this.data.position.y)+Number(this.data.scale.y)+Number(updatedata.position.y) > Engine_canvas.height) {
-         this.data.position.y = Engine_canvas.height-Number(this.data.scale.y)
-        }
-      }
-   }else{
-      if(updatedata.position) {
         if(updatedata.position.hasOwnProperty('x')) {
             if(typeof updatedata.position.x === "string" && updatedata.position.x.split("+").length == 2 || 
             typeof updatedata.position.x === "string" && updatedata.position.x.split("-").length == 2) {
@@ -342,7 +303,13 @@ function updateData(updatedata){
             typeof updatedata.position.y === "string" && updatedata.position.y.split("-").length == 2) {
               this.data.position.y = this.data.position.y+Number(updatedata.position.y)
              }else this.data.position.y = Number(updatedata.position.y)
-         }}}}
+         }
+         if(this.data.inscreen){
+            this.data.position.x = Math.max(1, Math.min(Engine_canvas.width-this.data.scale.x, this.data.position.x))
+            this.data.position.y =  Math.max(1, Math.min(Engine_canvas.height-this.data.scale.y, this.data.position.y))
+            console.log(this.data.position.x,this.data.position.y)
+         }
+      }
       if(updatedata.scale) {
         if(updatedata.scale.hasOwnProperty('x')) {
           if(typeof updatedata.scale.x === "string" && 
@@ -848,7 +815,7 @@ window.addEventListener("click", function (event) {
     ) {event.clicked = true;
       event.component = {name:z.name,x:event.clientX-z.position.x,y:event.clientY-z.position.y}}
   });
-  leftclicked({x:event.clientX,y:event.clientY},event.component|| false)
+  leftclicked({x:event.clientX/(window.innerWidth/Engine_canvas.width),y:event.clientY/(window.innerHeight/Engine_canvas.height)},event.component|| false)
 });
 
 window.addEventListener('mousemove', function (event) {
@@ -866,7 +833,7 @@ window.addEventListener('mousemove', function (event) {
     ) {event.clicked = true;
      event.component = {name:z.name,x:event.clientX-z.position.x,y:event.clientY-z.position.y}}
   });
-  mousemove({x:event.clientX,y:event.clientY},event.component|| false)
+  mousemove({x:event.clientX/(window.innerWidth/Engine_canvas.width),y:event.clientY/(window.innerHeight/Engine_canvas.height)},event.component|| false)
 })
 window.addEventListener('touchmove', function (event) {
    if(Engine_enabletouch == false) return;
@@ -887,7 +854,7 @@ window.addEventListener('touchmove', function (event) {
 }})
 event.toucheslist.push({
    finger:i+1,
-   x:event.touches[i].screenX,y:event.touches[i].screenY,
+   x:event.touches[i].screenX/(window.innerWidth/Engine_canvas.width),y:event.touches[i].screenY/(window.innerHeight/Engine_canvas.height),
    component:event.touches[i].component || false})
 };touchmove(event.toucheslist)
 })
@@ -910,7 +877,7 @@ window.addEventListener('touchstart', function (event) {
 }})
 event.toucheslist.push({
    finger:i+1,
-   x:event.touches[i].screenX,y:event.touches[i].screenY,
+   x:event.touches[i].screenX/(window.innerWidth/Engine_canvas.width),y:event.touches[i].screenY/(window.innerHeight/Engine_canvas.height),
    component:event.touches[i].component || false})
 };touchstart(event.toucheslist)
 })
@@ -934,7 +901,7 @@ window.addEventListener('touchend', function (event) {
    }})
    event.toucheslist.push({
       finger:i+1,
-      x:event.changedTouches[i].screenX,y:event.changedTouches[i].screenY,
+      x:event.changedTouches[i].screenX/(window.innerWidth/Engine_canvas.width),y:event.changedTouches[i].screenY/(window.innerHeight/Engine_canvas.height),
       component:event.changedTouches[i].component || false})
    };touchend(event.toucheslist)
 })
@@ -953,7 +920,7 @@ window.addEventListener('mousedown', function (event) {
       ) {event.clicked = true;
         event.component = {name:z.name,x:event.clientX-z.position.x,y:event.clientY-z.position.y}}
     });
-    mousedown({x:event.clientX,y:event.clientY,button:event.buttons},event.component|| false)
+    mousedown({x:event.clientX/(window.innerWidth/Engine_canvas.width),y:event.clientY/(window.innerHeight/Engine_canvas.height),button:event.buttons},event.component|| false)
 })
  window.addEventListener('mouseup', function (event) {
    if(Engine_enablemouse == false) return;
@@ -970,7 +937,7 @@ window.addEventListener('mousedown', function (event) {
       ) {event.clicked = true;
         event.component = {name:z.name,x:event.clientX-z.position.x,y:event.clientY-z.position.y}}
     });
-    mouseup({x:event.clientX,y:event.clientY,button:event.buttons},event.component|| false)
+    mouseup({x:event.clientX/(window.innerWidth/Engine_canvas.width),y:event.clientY/(window.innerHeight/Engine_canvas.height),button:event.buttons},event.component|| false)
 })
 window.addEventListener('contextmenu', function(event) {
    event.preventDefault();
@@ -988,7 +955,7 @@ window.addEventListener('contextmenu', function(event) {
       ) {event.clicked = true;
         event.component = {name:z.name,x:event.clientX-z.position.x,y:event.clientY-z.position.y}}
     });
-    rightclicked({x:event.clientX,y:event.clientY},event.component|| false)
+    rightclicked({x:event.clientX/(window.innerWidth/Engine_canvas.width),y:event.clientY/(window.innerHeight/Engine_canvas.height)},event.component|| false)
 });
 
 

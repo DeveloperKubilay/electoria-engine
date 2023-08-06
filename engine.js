@@ -307,7 +307,6 @@ function updateData(updatedata){
          if(this.data.inscreen){
             this.data.position.x = Math.max(1, Math.min(Engine_canvas.width-this.data.scale.x, this.data.position.x))
             this.data.position.y =  Math.max(1, Math.min(Engine_canvas.height-this.data.scale.y, this.data.position.y))
-            console.log(this.data.position.x,this.data.position.y)
          }
       }
       if(updatedata.scale) {

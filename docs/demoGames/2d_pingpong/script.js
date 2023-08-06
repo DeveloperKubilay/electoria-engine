@@ -125,3 +125,11 @@ physicout= ((data,z)=>{
 
   }
 })
+
+
+var latesttouch = 1
+touchmove = function(data){
+  data = data[0]
+  console.log((data.y-latesttouch).toFixed(0))
+ player1.update({position:{y:data.y-latesttouch}})
+}

@@ -1,7 +1,7 @@
 editdisplay(1024,720)
 
 
-var fast = 10;
+var fast = 15;
 var ease = 20;
 
 

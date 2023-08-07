@@ -383,7 +383,8 @@ if(data.position.y + data.scale.y + data.physic.y >= Engine_canvas.height && dat
 data.inscreen && data.position.y + data.physic.y < 0){
      if(Engine_canvas.height- data.position.y - data.scale.y < 0 && data.physic.y < 1 && data.physic.locky == 1) {
       data.physic.y = 0
-      }else{data.physic.locky = 1;physicout(data.name,{
+      }else{
+         data.physic.locky = 1;physicout(data.name,{
          top:data.inscreen && data.position.y + data.physic.y < 0,
          bottom:data.position.y + data.scale.y + data.physic.y >= Engine_canvas.height
       })
@@ -404,7 +405,7 @@ if(data.position.x + data.scale.x + data.physic.x >= Engine_canvas.width && data
 }else {
    if (data.physic.x > 0.001 && data.physic.x < 1 || data.physic.x < -0.001 && data.physic.x > -1) {
       data.physic.x = 0;
-      physicout(data.name,{bounced:true})
+      physicout(data.name,{friction:true})
     }else{
    if(data.physic.x && data.physic.xfriction) {data.physic.x += data.physic.x * -Number(data.physic.xfriction);}
    else{data.physic.x += data.physic.x * -Number(Engine_onload.xfriction)}

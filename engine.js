@@ -976,10 +976,10 @@ function Database(act,obj,obj2){
       return Engine_database[obj]
    }
    else if(act == "set" && obj && obj2){
-      Engine_database[obj] = Engine_database[obj2]
+      Engine_database[obj] = obj2
       return sendengine({dbset:[obj,obj2]})
-   }else if(act == "add" && !isNaN(Number(Engine_database[obj])) && !isNaN(Number(obj2))){
-      Engine_database[obj] = Engine_database[obj] + obj2
+   }else if(act == "add" && !isNaN(Number(Engine_database[obj] || 0)) && !isNaN(Number(obj2))){
+      Engine_database[obj] = (Engine_database[obj] || 0) + obj2
       return sendengine({dbset:[obj,Engine_database[obj] + obj2]})
    }else if(act == "push" && Engine_database[obj] && Engine_database[obj].length){
       Engine_database[obj].push(obj2)

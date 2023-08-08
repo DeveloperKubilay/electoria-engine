@@ -972,7 +972,6 @@ return true
 }
 function Database(act,obj,obj2){
    if(act == "get"){
-      if(!Engine_database.Engine_connected) return {}
       return Engine_database[obj]
    }
    else if(act == "set" && obj && obj2){

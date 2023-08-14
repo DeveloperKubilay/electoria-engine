@@ -527,7 +527,7 @@ function backgroundupdate(){
    Engine_c.shadowBlur = ""
    Engine_c.globalAlpha = 1
    Engine_allnames.map((x)=>{
-      let data = Engine_db.get(x)
+      let data = JSON.parse(JSON.stringify(Engine_db.get(x)))
       if(!data) return;
       if(data.physic && data.physic.status != false) physicengine(data)
       if(data.image == false && data.color == false) return;
@@ -547,6 +547,10 @@ function backgroundupdate(){
       if(data.shadow.blur){Engine_c.shadowBlur = data.shadow.blur}
       if(data.shadow.x){Engine_c.shadowOffsetX = data.shadow.x}
       if(data.shadow.y){Engine_c.shadowOffsetY = data.shadow.y}
+      }
+      if(Engine_backgroundlocation.x && Engine_backgroundlocation.y){
+        data.position.x = -Engine_backgroundlocation.x+data.position.x
+        data.position.y = -Engine_backgroundlocation.y+data.position.y
       }
       if(data.type == "component" && data.animate && data.animate.length){
          if(!data.hasOwnProperty('rotate')) data.rotate = 0
@@ -596,7 +600,11 @@ function backgroundupdate(){
       if(data.hasOwnProperty('rotate')) {
          Engine_c.fillRect(-data.scale.x / 2, -data.scale.y / 2, data.scale.x, data.scale.y);
          Engine_c.restore();       
-      }else{Engine_c.fillRect(data.position.x, data.position.y, data.scale.x, data.scale.y);}
+      }else{
+         
+         Engine_c.fillRect(data.position.x, data.position.y, data.scale.x, data.scale.y);
+      
+      }
       } else if(data.stype == "fillarc" || data.stype == "fa") {
          Engine_c.fillStyle = data.color || "black";
          Engine_c.arc(data.position.x+data.scale.x, data.position.y+data.scale.y-data.scale.x, data.scale.x,0,2*Math.PI);
@@ -670,7 +678,7 @@ if(Engine_backgroundlocation.bottom < Engine_backgroundlocation.y || Engine_back
  if(Engine_backgroundlocation.x <= Engine_backgroundlocation.left) Engine_backgroundlocation.x = Engine_backgroundlocation.left
  if(Engine_backgroundlocation.x >= Engine_backgroundlocation.right-Engine_backgroundlocation.dx)
    Engine_backgroundlocation.x = Engine_backgroundlocation.right-Engine_backgroundlocation.dx
-
+   
    if(Engine_backgroundlocation.y <= Engine_backgroundlocation.top) Engine_backgroundlocation.y = Engine_backgroundlocation.top
    if(Engine_backgroundlocation.y >= Engine_backgroundlocation.bottom-Engine_backgroundlocation.dy) 
      Engine_backgroundlocation.y = Engine_backgroundlocation.bottom-Engine_backgroundlocation.dy

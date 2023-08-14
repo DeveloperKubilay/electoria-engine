@@ -276,6 +276,7 @@ function updateData(updatedata){
       if(updatedata.hasOwnProperty('text')) this.data.text = updatedata.text
       if(updatedata.text === false) this.data.text = ""
       if(updatedata.position) {
+         if(updatedata.position.hasOwnProperty('autosetbackground')) this.data.position.autosetbackground = updatedata.position.autosetbackground
          if(updatedata.position.hasOwnProperty('x')) {
             if(typeof updatedata.position.x === "string" && updatedata.position.x.split("+").length == 2 || 
             typeof updatedata.position.x === "string" && updatedata.position.x.split("-").length == 2) {
@@ -292,6 +293,7 @@ function updateData(updatedata){
       if(updatedata.hasOwnProperty("collision")) this.data.collision = updatedata.collision
       if(updatedata.inscreen === false || updatedata.inscreen) this.data.inscreen = updatedata.inscreen
       if(updatedata.position){
+        if(updatedata.position.hasOwnProperty('autosetbackground')) this.data.position.autosetbackground = updatedata.position.autosetbackground
         if(updatedata.position.hasOwnProperty('x')) {
             if(typeof updatedata.position.x === "string" && updatedata.position.x.split("+").length == 2 || 
             typeof updatedata.position.x === "string" && updatedata.position.x.split("-").length == 2) {
@@ -527,7 +529,7 @@ function backgroundupdate(){
    Engine_c.shadowBlur = ""
    Engine_c.globalAlpha = 1
    Engine_allnames.map((x)=>{
-      let data = JSON.parse(JSON.stringify(Engine_db.get(x)))
+      let data = Engine_db.get(x)
       if(!data) return;
       if(data.physic && data.physic.status != false) physicengine(data)
       if(data.image == false && data.color == false) return;
@@ -548,7 +550,8 @@ function backgroundupdate(){
       if(data.shadow.x){Engine_c.shadowOffsetX = data.shadow.x}
       if(data.shadow.y){Engine_c.shadowOffsetY = data.shadow.y}
       }
-      if(Engine_backgroundlocation.x && Engine_backgroundlocation.y){
+      if(Engine_backgroundlocation.x && Engine_backgroundlocation.y && data.position.autosetbackground){
+        data = JSON.parse(JSON.stringify(Engine_db.get(x)))
         data.position.x = -Engine_backgroundlocation.x+data.position.x
         data.position.y = -Engine_backgroundlocation.y+data.position.y
       }

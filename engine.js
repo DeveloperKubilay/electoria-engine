@@ -501,7 +501,10 @@ function animatemanager(data){
    if(data.animate[data.animatedata.val].time < data.animatedata.time) {
    data.animatedata.time = 0;
    data.animatedata.val = data.animatedata.val+1;
-   if(data.animatedata.val == data.animate.length) data.animatedata.val = 0;
+    if(data.animatedata.val == data.animate.length) {
+      data.animatedata.val = 0;
+      animateout(data.name,data.animate)
+    }
    }
    Engine_c.drawImage(document.getElementById(data.animate[data.animatedata.val].image),
    data.animate[data.animatedata.val].position.x,
@@ -739,6 +742,7 @@ function textboxfocus(name){return;}
 function touchstart(fingers){return;}
 function touchend(fingers){return;}
 function physicout(){return;}
+function animateout(){return;}
 function collisionout(){return;}
 function togame(x){return;}
 function stopgame(){Engine_gamerunning = false}

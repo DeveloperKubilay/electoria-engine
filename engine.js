@@ -270,13 +270,13 @@ function updateData(updatedata){
     if(updatedata.hasOwnProperty('layer')) this.data.layer = updatedata.layer
     if(updatedata.hasOwnProperty('color')) this.data.color = updatedata.color
     if(updatedata.hasOwnProperty('rotate') && !isNaN(Number(updatedata.rotate))) this.data.rotate = Number(updatedata.rotate) * Math.PI / 180
+    if(updatedata.hasOwnProperty("backgroundposition")) this.data.backgroundposition = updatedata.backgroundposition
     if(this.data.type === "text"){
       if(updatedata.hasOwnProperty('size')) this.data.size = updatedata.size
       if(updatedata.hasOwnProperty('font')) this.data.font = updatedata.font
       if(updatedata.hasOwnProperty('text')) this.data.text = updatedata.text
       if(updatedata.text === false) this.data.text = ""
       if(updatedata.position) {
-         if(updatedata.position.hasOwnProperty('autosetbackground')) this.data.position.autosetbackground = updatedata.position.autosetbackground
          if(updatedata.position.hasOwnProperty('x')) {
             if(typeof updatedata.position.x === "string" && updatedata.position.x.split("+").length == 2 || 
             typeof updatedata.position.x === "string" && updatedata.position.x.split("-").length == 2) {
@@ -293,7 +293,6 @@ function updateData(updatedata){
       if(updatedata.hasOwnProperty("collision")) this.data.collision = updatedata.collision
       if(updatedata.inscreen === false || updatedata.inscreen) this.data.inscreen = updatedata.inscreen
       if(updatedata.position){
-        if(updatedata.position.hasOwnProperty('autosetbackground')) this.data.position.autosetbackground = updatedata.position.autosetbackground
         if(updatedata.position.hasOwnProperty('x')) {
             if(typeof updatedata.position.x === "string" && updatedata.position.x.split("+").length == 2 || 
             typeof updatedata.position.x === "string" && updatedata.position.x.split("-").length == 2) {
@@ -553,11 +552,6 @@ function backgroundupdate(){
       if(data.shadow.x){Engine_c.shadowOffsetX = data.shadow.x}
       if(data.shadow.y){Engine_c.shadowOffsetY = data.shadow.y}
       }
-      if(Engine_backgroundlocation.x && Engine_backgroundlocation.y && data.position.autosetbackground){
-        data = JSON.parse(JSON.stringify(Engine_db.get(x)))
-        data.position.x = -Engine_backgroundlocation.x+data.position.x
-        data.position.y = -Engine_backgroundlocation.y+data.position.y
-      }
       if(data.type == "component" && data.animate && data.animate.length){
          if(!data.hasOwnProperty('rotate')) data.rotate = 0
          if(data.reverse){
@@ -606,10 +600,8 @@ function backgroundupdate(){
       if(data.hasOwnProperty('rotate')) {
          Engine_c.fillRect(-data.scale.x / 2, -data.scale.y / 2, data.scale.x, data.scale.y);
          Engine_c.restore();       
-      }else{
-         
+      }else{ 
          Engine_c.fillRect(data.position.x, data.position.y, data.scale.x, data.scale.y);
-      
       }
       } else if(data.stype == "fillarc" || data.stype == "fa") {
          Engine_c.fillStyle = data.color || "black";
@@ -651,43 +643,52 @@ function backgroundupdate(){
    if(Engine_onload.fps == "auto") requestAnimationFrame(backgroundupdate)
 }
 
+function Engine_findanoddnumber(sayi) {
+   if (sayi % 2 === 0) {return sayi + 1;
+   } else {return sayi;}
+}
+
 function backgroundmap(data){
    if(!Engine_background) return;
    try{clearInterval(Engine_BackgroundInterval);}catch{}
-   if(!Engine_backgroundlocation.x) Engine_backgroundlocation.x = 1
-   if(!Engine_backgroundlocation.y) Engine_backgroundlocation.y = 1
+   if(!Engine_backgroundlocation.x) Engine_backgroundlocation.x = -1
+   if(!Engine_backgroundlocation.y) Engine_backgroundlocation.y = -1
    if(!Engine_backgroundlocation.dx) Engine_backgroundlocation.dx = Engine_canvas.width
    if(!Engine_backgroundlocation.dy) Engine_backgroundlocation.dy = Engine_canvas.height
    if(!data){data = {}}
-   if(data.hasOwnProperty('right')) Engine_backgroundlocation.right = data.right
-   if(data.hasOwnProperty('bottom')) Engine_backgroundlocation.bottom = data.bottom
-   if(data.hasOwnProperty('left')) Engine_backgroundlocation.left = data.left
-   if(data.hasOwnProperty('top')) Engine_backgroundlocation.top = data.top
    if(data.hasOwnProperty('dx')) Engine_backgroundlocation.dx = data.dx
    if(data.hasOwnProperty('dy')) Engine_backgroundlocation.dy = data.dy
-if(Engine_backgroundlocation.bottom < Engine_backgroundlocation.y || Engine_backgroundlocation.right < Engine_backgroundlocation.x)return;
+
  if(data.hasOwnProperty('x')) {
    if(typeof data.x === "string" && data.x.split("+").length == 2){
-      Engine_backgroundlocation.x = Engine_backgroundlocation.x+Number(data.x.split("+")[1])
+      Engine_backgroundlocation.x = Engine_backgroundlocation.x-Engine_findanoddnumber(Number(data.x.split("+")[1]))
    }else if(typeof data.x === "string" && data.x.split("-").length == 2){
-      Engine_backgroundlocation.x = Engine_backgroundlocation.x-Number(data.x.split("-")[1])
-   }else{Engine_backgroundlocation.x = data.x}
- }else{data.x = 0}
+      Engine_backgroundlocation.x = Engine_backgroundlocation.x+Engine_findanoddnumber(Number(data.x.split("-")[1]))
+   }else{Engine_backgroundlocation.x = -Engine_findanoddnumber(data.x)}
+ }
  if(data.hasOwnProperty('y')) {
    if(typeof data.y === "string" && data.y.split("+").length == 2){
-      Engine_backgroundlocation.y = Engine_backgroundlocation.y+Number(data.y.split("+")[1])
+      Engine_backgroundlocation.y = Engine_backgroundlocation.y-Engine_findanoddnumber(Number(data.y.split("+")[1]))
    }else if(typeof data.y === "string" && data.y.split("-").length == 2){
-      Engine_backgroundlocation.y = Engine_backgroundlocation.y-Number(data.y.split("-")[1])
-   }else{Engine_backgroundlocation.y = data.y}
- }else{data.y = 0}
+      Engine_backgroundlocation.y = Engine_backgroundlocation.y+Engine_findanoddnumber(Number(data.y.split("-")[1]))
+   }else{Engine_backgroundlocation.y = -Engine_findanoddnumber(data.y)}
+ }
 
- if(Engine_backgroundlocation.x <= Engine_backgroundlocation.left) Engine_backgroundlocation.x = Engine_backgroundlocation.left
- if(Engine_backgroundlocation.x >= Engine_backgroundlocation.right-Engine_backgroundlocation.dx)
-   Engine_backgroundlocation.x = Engine_backgroundlocation.right-Engine_backgroundlocation.dx
-   
-   if(Engine_backgroundlocation.y <= Engine_backgroundlocation.top) Engine_backgroundlocation.y = Engine_backgroundlocation.top
-   if(Engine_backgroundlocation.y >= Engine_backgroundlocation.bottom-Engine_backgroundlocation.dy) 
-     Engine_backgroundlocation.y = Engine_backgroundlocation.bottom-Engine_backgroundlocation.dy
+ var lockedupdate = false;
+
+ if(Engine_backgroundlocation.y > 0) Engine_backgroundlocation.y = -1,lockedupdate = true;
+ if(Engine_backgroundlocation.x > 0) Engine_backgroundlocation.x = -1,lockedupdate = true;
+ if(Engine_backgroundlocation.x < -Engine_backgroundlocation.dx) Engine_backgroundlocation.x = -Engine_backgroundlocation.dx,lockedupdate = true;
+ if(Engine_backgroundlocation.y < -Engine_backgroundlocation.dy) Engine_backgroundlocation.y = -Engine_backgroundlocation.dy,lockedupdate = true;
+
+
+ if(!lockedupdate) Engine_allnames.map((x)=>{
+   let ddata = Engine_db.get(x)
+   if(!ddata || !ddata.backgroundposition) return;
+   ddata.position.x += -Number(data.x || 0)
+   ddata.position.y += -Number(data.y || 0)
+ })
+
 }
 
 function backgroundreset() {
@@ -696,9 +697,7 @@ function backgroundreset() {
       if(Engine_backgroundlocation.x && Engine_backgroundlocation.y){
          Engine_c.drawImage(document.getElementById(Engine_background),
          Engine_backgroundlocation.x, Engine_backgroundlocation.y,
-         Engine_backgroundlocation.dx,Engine_backgroundlocation.dy,
-         0, 0,
-         Engine_canvas.width, Engine_canvas.height
+         Engine_backgroundlocation.dx+Engine_canvas.width,Engine_backgroundlocation.dy+Engine_canvas.height,
       );  
       }else{
     Engine_c.drawImage(document.getElementById(Engine_background), 0, 0,Engine_canvas.width,Engine_canvas.height); 

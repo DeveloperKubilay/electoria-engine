@@ -98,6 +98,17 @@ function addstyle(url) {
   document.head.appendChild(link);
 }
 
+function addfont(fontName, fontUrl) {
+  var style = document.createElement('style');
+  style.appendChild(document.createTextNode(`
+      @font-face {
+          font-family: "${fontName}";
+          src: url("${fontUrl}");
+      }
+  `));
+  document.head.appendChild(style);
+}
+
 async function linkget(x){
   return await fetch(x).then(response => response.text())
 }

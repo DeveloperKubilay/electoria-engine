@@ -23,7 +23,7 @@ $.ajax({
     success: function(response) {
         response.filter((x)=>x.type == "dir").map((x)=>{
             x.url = "https://developerkubilay.github.io/electoria-engine/demoGames/"+x.name+"/ingame.html"
-            if(x == "2d_flappy") x.url = "https://developerkubilay.github.io/electoria-engine/demoGames/2d_flappy/restrictedscreen.html"
+            if(x.name == "2d_flappy") x.url = "https://developerkubilay.github.io/electoria-engine/demoGames/2d_flappy/restrictedscreen.html"
             $("#links").append(`<a class="text2" href=${x.url}>${x.name}</a><br>`)
         })
         

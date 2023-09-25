@@ -453,11 +453,15 @@ if(fside.output == "top"){
    }
    if(data.inscreen && z.scale.y+z.position.y > Engine_canvas.height){
       z.position.y = Engine_canvas.height-z.scale.y
-      return data.position.y = z.position.y-data.scale.y-1
+      return data.position.y = z.position.y-data.scale.y-1;
    }
   if(data.physic && data.physic.status){
       data.physic.y = -data.physic.y * Number(Engine_onload.yfriction)
       data.position.y = z.position.y-data.scale.y
+      if(data.inscreen && data.position.y < 0){
+         z.position.y = data.scale.y+1
+         return data.position.y = 0 
+      }
       data.physic.flocky = true
   }else if(data.physic && data.physic.status == false){
       if(data.collision ==2){data.position.y = z.position.y-data.scale.y-(z.physic && z.physic.status && z.physic.y || 0)
@@ -478,10 +482,22 @@ if(fside.output == "top"){
       if(z.physic && z.physic.status && data.physic){
          if(data.physic.x && data.physic.x < 0){
            data.position.x = z.position.x+z.scale.x
-          if(z.collision ==2) {z.physic.x = data.physic.x*1.1;}else{data.physic.x = -data.physic.x}
+          if(z.collision ==2) {
+            if(z.physic.x == 0){
+               var tempdata = z.physic.x
+               z.physic.x = data.physic.x
+               data.physic.x = tempdata;
+            }else z.physic.x = data.physic.x*1.01
+         }else{data.physic.x = -data.physic.x}
          }else{
          z.position.x = data.position.x-z.scale.x 
-         if(data.collision ==2) {data.physic.x = z.physic.x*1.01}else{z.physic.x = -z.physic.x}
+         if(data.collision ==2) {
+            if(z.physic.x == 0){
+               var tempdata = data.physic.x
+               data.physic.x = z.physic.x
+               z.physic.x = tempdata;
+            }else data.physic.x = z.physic.x*1.01
+         }else{z.physic.x = -z.physic.x}
       }
       }else{
           data.position.x = z.position.x+z.scale.x

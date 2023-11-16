@@ -313,15 +313,13 @@ function updateData(updatedata){
       if(updatedata.scale) {
         if(updatedata.scale.hasOwnProperty('x')) {
           if(typeof updatedata.scale.x === "string" && 
-          updatedata.scale.x.split("+").length == 2 || 
-          typeof updatedata.scale.x === "string" &&  updatedata.scale.x.split("-").length == 2) {
+          updatedata.scale.x.split("+").length == 2 || updatedata.scale.x.split("-").length == 2) {
             this.data.scale.x = this.data.scale.x+Number(updatedata.scale.x)
           }else this.data.scale.x = updatedata.scale.x
        }
        if(updatedata.scale.hasOwnProperty('y')) {
           if(typeof updatedata.scale.y === "string" && 
-          updatedata.scale.y.split("+").length == 2 || typeof updatedata.scale.x === "string" && 
-          updatedata.scale.y.split("-").length == 2) {
+          updatedata.scale.y.split("+").length == 2 || updatedata.scale.y.split("-").length == 2) {
             this.data.scale.y = this.data.scale.y+Number(updatedata.scale.y)
           }else this.data.scale.y = updatedata.scale.y 
     }}
@@ -610,7 +608,12 @@ function backgroundupdate(){
       if(data.type == "text"){
          Engine_c.font = String(data.size)+" "+String(data.font);
          Engine_c.fillStyle = data.color || "black"
-         Engine_c.fillText(data.text, data.position.x, data.position.y)
+         if(data.text.includes("\n")){
+            const lines = data.text.split("\n")
+            for (var i = 0; i < lines.length; i++) {
+               Engine_c.fillText(lines[i], data.position.x, data.position.y + i * data.size.split("px")[0]);
+            }
+         }else Engine_c.fillText(data.text, data.position.x, data.position.y)
          if(data.hasOwnProperty('rotate')) Engine_c.restore();   
       }else {
       if(data.stype == "fillrect" || data.stype == "fr"){

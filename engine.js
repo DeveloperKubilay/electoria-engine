@@ -313,13 +313,15 @@ function updateData(updatedata){
       if(updatedata.scale) {
         if(updatedata.scale.hasOwnProperty('x')) {
           if(typeof updatedata.scale.x === "string" && 
-          updatedata.scale.x.split("+").length == 2 || updatedata.scale.x.split("-").length == 2) {
+          updatedata.scale.x.split("+").length == 2 || 
+          typeof updatedata.scale.x === "string" &&  updatedata.scale.x.split("-").length == 2) {
             this.data.scale.x = this.data.scale.x+Number(updatedata.scale.x)
           }else this.data.scale.x = updatedata.scale.x
        }
        if(updatedata.scale.hasOwnProperty('y')) {
           if(typeof updatedata.scale.y === "string" && 
-          updatedata.scale.y.split("+").length == 2 || updatedata.scale.y.split("-").length == 2) {
+          updatedata.scale.y.split("+").length == 2 || typeof updatedata.scale.x === "string" && 
+          updatedata.scale.y.split("-").length == 2) {
             this.data.scale.y = this.data.scale.y+Number(updatedata.scale.y)
           }else this.data.scale.y = updatedata.scale.y 
     }}

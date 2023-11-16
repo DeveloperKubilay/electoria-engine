@@ -8,13 +8,13 @@ try{ return io(("ws://"+url),{auth:auth,transports: ['websocket'] });
 }catch{return;}
 }
 
-function anim(data){
+function anim(data,fnc){
 if(!data || !data.name || !data.position || !data.position.hasOwnProperty("x") || !data.position.hasOwnProperty("y"))return;
 anime({
   targets: getData(data.name).position,
   x: data.position.x,y: data.position.y,
   duration: data.time || 1000,easing: data.hasOwnProperty("type") ? data.type : 'linear',
-  complete:function(){updateData({name: data.name,physic:{x:0,y:0}})}
+  complete:function(){updateData({name: data.name,physic:{x:0,y:0}}); if(fnc) fnc()}
 });
 }
 

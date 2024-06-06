@@ -22,15 +22,6 @@ anime({
 });
 }
 
-function playerupdaterserver(set,player,time){
-    if(set == true){
-        Playerupdaterdb.set(player,setInterval(()=>socket.emit("server", {player:getData(player)}),time || 1))
-    }else{
-        clearInterval(Playerupdaterdb.get(player))
-        Playerupdaterdb.delete(player)
-    }
-}
-
 function starthammercanvas(){
 new Hammer(window).on('pan', function(ev) {
   if (ev.direction == Hammer.DIRECTION_RIGHT) hammercanvas("RIGHT",ev.deltaTime);

@@ -1,0 +1,12 @@
+{
+  "name": "electoria-engine",
+  "version": "1.0.6",
+  "main": "ENGINE/index.js",
+  "scripts": {
+    "start": "npm start --prefix ENGINE",
+    "debug": "npx electron ENGINE"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

@@ -1,0 +1,70 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Version Tag (e.g. 1.0.7)'
+        required: true
+        type: string
+      release_title:
+        description: 'Release Title (e.g. Electoria Engine v1.0.7)'
+        required: false
+        type: string
+      release_notes:
+        description: 'Release Notes / Changelog'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'ENGINE/package.json'
+
+      - name: Install Editor Dependencies
+        working-directory: ./ENGINE
+        run: |
+          npm ci || npm install
+
+      - name: Prepare Clean Release Bundle
+        run: |
+          mkdir -p ./dist/electoriaengine
+          # Copy Editor and Engine files while excluding unnecessary runtime/cache directories
+          rsync -av --exclude='.git' \
+                    --exclude='.github' \
+                    --exclude='ENGINE/builds' \
+                    --exclude='ENGINE/games' \
+                    --exclude='ENGINE/source/templates/build/Android/.gradle' \
+                    --exclude='ENGINE/node_modules' \
+                    ./ ./dist/electoriaengine/
+
+          # Package into electoriaengine.zip
+          cd ./dist/electoriaengine
+          zip -r ../../electoriaengine.zip .
+          cd ../..
+
+      - name: Create GitHub Release and Upload Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version_tag }}
+          name: ${{ inputs.release_title || format('Electoria Engine v{0}', inputs.version_tag) }}
+          body: ${{ inputs.release_notes || 'Electoria Engine & Editor Release' }}
+          draft: false
+          prerelease: false
+          files: |
+            electoriaengine.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

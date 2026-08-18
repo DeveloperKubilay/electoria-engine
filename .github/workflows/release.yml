@@ -42,14 +42,14 @@ jobs:
       - name: Prepare Clean Release Bundle
         run: |
           mkdir -p ./dist/electoriaengine
-          # Copy Editor and Engine files while excluding unnecessary runtime/cache directories
-          rsync -av --exclude='.git' \
-                    --exclude='.github' \
-                    --exclude='ENGINE/builds' \
-                    --exclude='ENGINE/games' \
-                    --exclude='ENGINE/source/templates/build/Android/.gradle' \
-                    --exclude='ENGINE/node_modules' \
-                    ./ ./dist/electoriaengine/
+          # Copy ONLY ENGINE directory contents into bundle while excluding runtime/cache files
+          rsync -av --exclude='builds' \
+                    --exclude='games' \
+                    --exclude='source/templates/build/Android/.gradle' \
+                    --exclude='source/templates/build/Android/build' \
+                    --exclude='source/templates/build/Android/app/build' \
+                    --exclude='node_modules' \
+                    ./ENGINE/ ./dist/electoriaengine/
 
           # Package into electoriaengine.zip
           cd ./dist/electoriaengine

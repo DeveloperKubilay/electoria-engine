@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electoria Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<image id="icont"></image>
+<image id="icon"></image>
+<div class="loading-indicator">
+    <div class="loading-bar"></div>
+</div>
+<style>
+body{
+    background-color: #0f0e17;
+    height: 100%;
+    position: fixed;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    color: #fffffe;
+    overflow: hidden;
+}
+#icon{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    opacity: 0.7;
+    object-fit: cover;
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.2));
+}
+#icont{
+    position: fixed;
+    transition: all 0.8s ease;
+}
+.loading-indicator {
+    position: fixed;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.loading-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff8906, #f25f4c);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+</style>
+<script>
+var settings = {
+ //gameicon:"../icons/icon.png",
+ engineicon:"../icons/iconstart.png",
+ egameicon:"../icons/icon.png",
+ add:"./mainpage.html",
+ timeout:3000
+}
+</script>
+<script>
+document.getElementById("icon").src = settings.engineicon
+function start() {window.location = settings.add;}
+
+// Loading bar animation
+function updateLoadingBar(progress) {
+    document.querySelector('.loading-bar').style.width = progress + '%';
+}
+
+if(settings.gameicon){
+    document.getElementById("icont").src = settings.gameicon
+    document.getElementById("icon").src = settings.egameicon
+    document.getElementById("icont").style.width = "100%";
+    document.getElementById("icont").style.height = "100%";
+    document.getElementById("icont").style["object-fit"] = "cover";
+    document.getElementById("icon").style.width = "12%";
+    document.getElementById("icon").style.height = "12%";
+    document.getElementById("icon").style.opacity = "1";
+    document.getElementById("icon").style["bottom"] = "0";
+    
+    // Animate loading bar
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += 100 / (settings.timeout / 100);
+        if (progress >= 100) {
+            clearInterval(interval);
+            progress = 100;
+            setTimeout(() => start(), 200);
+        }
+        updateLoadingBar(progress);
+    }, 100);
+} else {
+    var opa = 0.7;
+    let progress = 0;
+    const interval = setInterval(() => {
+        opa += 0.005;
+        progress += 100 / (settings.timeout / 50);
+        document.getElementById("icon").style.opacity = opa;
+        updateLoadingBar(progress);
+        if(opa >= 1) {
+            clearInterval(interval);
+            start();
+        }
+    }, settings.timeout/60);
+}
+</script>
+</body>
+</html>

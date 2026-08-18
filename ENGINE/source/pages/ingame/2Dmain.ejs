@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.18/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <link rel="stylesheet" href="css/main.css">
+    <title>Electoria Engine - <%= typeof gameName !== 'undefined' ? gameName : '' %></title>
+</head>
+<body>
+<div class="menu">
+    <div class="navbar">
+        <div class="logo">
+            <img src="icons/iconnb.png" class="logo-image">
+            <span class="logo-text">Electoria Engine</span>
+        </div>
+
+        <!-- View Switcher Tabs -->
+        <div class="nav-view-switcher">
+            <button class="nav-view-tab active" id="tab-btn-game" onclick="switchEditorView('game')">
+                <i class="fa-solid fa-gamepad"></i> Game View
+            </button>
+            <button class="nav-view-tab" id="tab-btn-scene" onclick="switchEditorView('scene')">
+                <i class="fa-solid fa-vector-square"></i> Scene View
+            </button>
+            <button class="nav-view-tab" id="tab-btn-blueprint" onclick="switchEditorView('blueprint')">
+                <i class="fa-solid fa-diagram-project"></i> Visual Scripting
+            </button>
+        </div>
+
+        <div class="nav-actions">
+            <button class="nav-button" id="btn-aspect-ratio" title="Resolution & Aspect Ratio Lock" onclick="toggleAspectRatioConstraint()">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+            </button>
+            <button class="nav-button" id="animicon" title="Animation" onclick="openAnimationStudio()">
+                <i class="fa-solid fa-film"></i>
+            </button>
+            <button class="nav-button" id="vscodeicon" title="Open in VS Code" onclick="openVSCode()">
+                <i class="fa-solid fa-code"></i>
+            </button>
+            <button class="nav-button" id="settingsicon" title="Settings" onclick="settings()">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+            <button class="nav-button play" id="playicon" title="Play Game (Compile & Run)" onclick="playGame()">
+                <i class="fa-solid fa-play"></i>
+            </button>
+            <button class="nav-button" id="compare" title="Compile Assets & Scripts" onclick="compileGame()">
+                <i class="fa-solid fa-code-compare"></i>
+            </button>
+            <button class="nav-button" id="export" title="Export Game" onclick="window.location = '/build'">
+                <i class="fa-solid fa-file-export"></i>
+            </button>
+            <button class="nav-button" id="newlive" title="Open In New Window" onclick="window.open('/live', '_blank');">
+                <i class="fa-solid fa-turn-up"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="workspace" id="workspace-container">
+        <!-- Leftbar Panel -->
+        <div class="leftbar" id="leftbar-panel">
+            <div class="leftbar-tabs">
+                <div class="leftbar-tab active" onclick="leftopbar('Component')">Component</div>
+                <div class="leftbar-tab" onclick="leftopbar('Text')">Text</div>
+                <div class="leftbar-tab" onclick="leftopbar('Textbox')">Textbox</div>
+                <div class="leftbar-tab" onclick="leftopbar('Video')">Video</div>
+            </div>
+            <div class="leftbar-divider"></div>
+            <div class="leftbar-content">
+                <div class="content-header">
+                    <h3 id="lbtb">Entities</h3>
+                </div>
+                <div class="content-items" id="litems"></div>
+            </div>
+        </div>
+
+        <!-- Left Resizer -->
+        <div class="resizer-x" id="resizer-left"></div>
+
+        <!-- Main Viewport Area (Tabbed) -->
+        <div class="center-panel" id="center-panel">
+            <!-- 1. Game View (Live Iframe) -->
+            <div class="editor-view-panel active" id="view-game">
+                <iframe id="mainiframe" src="./ingame.html"></iframe>
+            </div>
+
+            <!-- 2. Scene View (Level Editor Canvas) -->
+            <div class="editor-view-panel" id="view-scene">
+                <div class="scene-toolbar">
+                    <div class="scene-tool-group">
+                        <button class="scene-tool-btn active" id="tool-select" onclick="SceneEditor.setTool('select')" title="Select & Move Tool (V)">
+                            <i class="fa-solid fa-arrow-pointer"></i>
+                        </button>
+                        <button class="scene-tool-btn" id="tool-pan" onclick="SceneEditor.setTool('pan')" title="Pan Tool (H)">
+                            <i class="fa-solid fa-hand"></i>
+                        </button>
+                    </div>
+                    <div class="scene-tool-divider"></div>
+                    <div class="scene-tool-group">
+                        <button class="scene-tool-btn" onclick="SceneEditor.setZoom(SceneEditor.zoom * 1.2)" title="Zoom In">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </button>
+                        <span class="scene-badge" id="scene-zoom-val">100%</span>
+                        <button class="scene-tool-btn" onclick="SceneEditor.setZoom(SceneEditor.zoom / 1.2)" title="Zoom Out">
+                            <i class="fa-solid fa-magnifying-glass-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <canvas id="scene-canvas"></canvas>
+            </div>
+
+            <!-- 3. Blueprint Visual Editor -->
+            <div class="editor-view-panel" id="view-blueprint">
+                <div class="bp-toolbar">
+                    <div class="bp-tool-group">
+                        <button class="bp-btn bp-btn-primary" onclick="BlueprintEditor.compileAndSave()" title="Compile Blueprint to JavaScript">
+                            <i class="fa-solid fa-bolt"></i> Compile Blueprint
+                        </button>
+                        <button class="bp-btn" onclick="BlueprintEditor.renderGraph()" title="Refresh Canvas">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Node Palette Sidebar -->
+                <div class="bp-palette">
+                    <div class="bp-palette-header">Node Library</div>
+                    <div class="bp-palette-search">
+                        <input type="text" placeholder="Search nodes..." oninput="BlueprintPaletteSearch(this.value)">
+                    </div>
+                    <div class="bp-palette-list" id="bp-palette-items">
+                        <div class="bp-pal-cat">Events</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Event_OnStart')"><i class="fa-solid fa-flag-checkered"></i> On Start</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Event_OnKeyPress')"><i class="fa-solid fa-keyboard"></i> On Key Press</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Event_OnCollision')"><i class="fa-solid fa-bullseye"></i> On Collision</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Event_OnClick')"><i class="fa-solid fa-arrow-pointer"></i> On Click</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Event_OnTick')"><i class="fa-solid fa-stopwatch"></i> On Tick</div>
+
+                        <div class="bp-pal-cat">Values & Text Operations</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Val_String')"><i class="fa-solid fa-font"></i> String (Text)</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Val_Number')"><i class="fa-solid fa-hashtag"></i> Number</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Val_Boolean')"><i class="fa-solid fa-toggle-on"></i> Boolean</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('String_Concat')"><i class="fa-solid fa-link"></i> Combine Text (Concat)</div>
+
+                        <div class="bp-pal-cat">Timers & Loops</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Flow_SetInterval')"><i class="fa-solid fa-repeat"></i> Set Interval</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Flow_Delay')"><i class="fa-solid fa-hourglass-half"></i> Delay / Timeout</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Flow_ForLoop')"><i class="fa-solid fa-arrow-rotate-right"></i> For Loop</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Flow_Sequence')"><i class="fa-solid fa-list-ol"></i> Sequence</div>
+
+                        <div class="bp-pal-cat">Actions & Entities</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Action_SetText')"><i class="fa-solid fa-pen-to-square"></i> Set Text</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Action_SetColor')"><i class="fa-solid fa-palette"></i> Set Color</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Action_SetPosition')"><i class="fa-solid fa-location-dot"></i> Set Position</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Action_DestroyEntity')"><i class="fa-solid fa-trash-can"></i> Destroy Entity</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Action_AddForce')"><i class="fa-solid fa-meteor"></i> Add Force</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Action_SetVelocity')"><i class="fa-solid fa-gauge-high"></i> Set Velocity</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Action_MoveTowards')"><i class="fa-solid fa-person-running"></i> Move Towards</div>
+
+                        <div class="bp-pal-cat">Camera</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Action_CameraFollow')"><i class="fa-solid fa-video"></i> Camera Follow</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Action_CameraShake')"><i class="fa-solid fa-arrows-up-down-left-right"></i> Camera Shake</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Action_CameraZoom')"><i class="fa-solid fa-magnifying-glass"></i> Camera Zoom</div>
+
+                        <div class="bp-pal-cat">Math & Logic</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Logic_Branch')"><i class="fa-solid fa-code-branch"></i> Branch (If/Else)</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Logic_Compare')"><i class="fa-solid fa-equals"></i> Compare</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Logic_MathOp')"><i class="fa-solid fa-calculator"></i> Math Operation</div>
+
+                        <div class="bp-pal-cat">Variables & Code</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Var_SetVariable')"><i class="fa-solid fa-box-archive"></i> Set Variable</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Var_GetVariable')"><i class="fa-solid fa-box-open"></i> Get Variable</div>
+                        <div class="bp-pal-item" onclick="BlueprintEditor.addNode('Custom_Code')"><i class="fa-solid fa-code"></i> Custom JS Code</div>
+                    </div>
+                </div>
+
+                <div id="blueprint-stage">
+                    <svg id="blueprint-svg"></svg>
+                    <div id="blueprint-canvas"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Resizer -->
+        <div class="resizer-x" id="resizer-right"></div>
+
+        <!-- Rightbar Panel -->
+        <div class="rightbar" id="rightbar-panel">
+            <div class="rightbar-header">
+                <h3>Properties</h3>
+            </div>
+            <div class="rightbar-content">
+                <div class="properties-container">
+                    <!-- Dynamic Properties Form -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Resizer -->
+    <div class="resizer-y" id="resizer-bottom"></div>
+
+    <!-- Bottom Area -->
+    <div class="bottom-area" id="bottom-panel">
+        <div class="files-panel" id="files-panel">
+            <div class="panel-header">
+                <div class="header-title">Files</div>
+                <div class="header-actions">
+                    <button class="action-button" onclick="filemanager('home')" title="Home">
+                        <i class="fa-solid fa-house"></i>
+                    </button>
+                    <button class="action-button" id="rerefresh" onclick="filemanager('refresh')" 
+                            onmouseover="refreshbuttonn(true)" onmouseout="refreshbuttonn('fix')" title="Refresh">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                    <button class="action-button" onclick="filemanager('explorer')" title="File explorer">
+                        <i class="fa-solid fa-folder"></i>
+                    </button>
+                    <button class="action-button" onclick="filemanager('plus')" title="New file">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                    <button class="action-button danger" onclick="filemanager('remove')" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="files-container" id="xfiles"></div>
+        </div>
+
+        <!-- Console Resizer -->
+        <div class="resizer-x" id="resizer-console"></div>
+
+        <div class="console-panel" id="console-panel">
+            <div class="panel-header">
+                <div class="header-title">Console</div>
+                <div class="terminal-toggle">
+                    <span class="terminal-label">HTML Terminal</span>
+                    <label class="toggle" style="margin: 0 10px;">
+                        <input type="checkbox" class="checkbox" onchange="terminalcheck(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="terminal-label">Engine Terminal</span>
+                </div>
+                <button class="action-button danger" title="Clear console" onclick="document.getElementById('xconsole').innerHTML = ''">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="console-output" id="xconsole"></div>
+            <div class="console-input-container">
+                <input type="text" id="termn" class="console-input" placeholder="Enter command..." 
+                    onkeydown="if(event.key === 'Enter') { terminkey(this.value); this.value = ''}else if(event.key === 'ArrowUp') this.value = latestinput">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sprite Animation Studio Modal -->
+<div id="anim-studio-modal" class="anim-modal" style="display: none;">
+    <div class="anim-modal-container">
+        <div class="anim-modal-header">
+            <div class="anim-modal-title">
+                <i class="fa-solid fa-film"></i> Animation Studio
+            </div>
+            <button class="anim-modal-close" onclick="AnimStudio.close()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="anim-modal-body">
+            <!-- Left: Controls & Slicer -->
+            <div class="anim-left-col">
+                <div class="anim-section-title">Sprite Sheet</div>
+                <select id="anim-image-select" class="anim-select" onchange="AnimStudio.selectImage(this.value)">
+                    <option value="">-- Select Sprite Sheet --</option>
+                </select>
+
+                <div class="anim-section-title" style="margin-top: 15px;">Grid Slicing</div>
+                <div class="anim-row">
+                    <div class="anim-input-group">
+                        <label>Columns (Sütun)</label>
+                        <input type="number" id="anim-grid-cols" value="4" min="1" max="64" onchange="AnimStudio.renderSheet()">
+                    </div>
+                    <div class="anim-input-group">
+                        <label>Rows (Satır)</label>
+                        <input type="number" id="anim-grid-rows" value="2" min="1" max="64" onchange="AnimStudio.renderSheet()">
+                    </div>
+                </div>
+                <div class="anim-row" style="margin-top: 8px;">
+                    <label class="anim-checkbox-label">
+                        <input type="checkbox" id="anim-show-grid" checked onchange="AnimStudio.renderSheet()"> Show Grid
+                    </label>
+                </div>
+                <div class="anim-row" style="margin-top: 8px; gap: 6px;">
+                    <button class="anim-btn anim-btn-primary" onclick="AnimStudio.autoSliceGrid()" style="flex: 1;">
+                        <i class="fa-solid fa-scissors"></i> Auto Slice Grid
+                    </button>
+                </div>
+
+                <div class="anim-section-title" style="margin-top: 20px;">Target Entity</div>
+                <select id="anim-entity-select" class="anim-select" onchange="AnimStudio.onEntityChanged(this.value)"></select>
+                <button class="anim-btn anim-btn-success" onclick="AnimStudio.applyAnimationToEntity()" style="margin-top: 10px; width: 100%;">
+                    <i class="fa-solid fa-floppy-disk"></i> Attach Animation to Entity
+                </button>
+            </div>
+
+            <!-- Center: Sprite Sheet Canvas View -->
+            <div class="anim-center-col">
+                <div class="anim-sheet-header">
+                    <div class="anim-sheet-title">
+                        <i class="fa-solid fa-image"></i> <span>Sprite Sheet Canvas</span>
+                    </div>
+                    <div class="anim-zoom-toolbar">
+                        <button class="anim-tool-btn" onclick="AnimStudio.zoomIn()" title="Zoom In (+)">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </button>
+                        <span id="anim-zoom-val" class="anim-zoom-badge">100%</span>
+                        <button class="anim-tool-btn" onclick="AnimStudio.zoomOut()" title="Zoom Out (-)">
+                            <i class="fa-solid fa-magnifying-glass-minus"></i>
+                        </button>
+                        <button class="anim-tool-btn" onclick="AnimStudio.fitToView()" title="Fit to Screen">
+                            <i class="fa-solid fa-expand"></i>&nbsp; Fit
+                        </button>
+                    </div>
+                </div>
+                <div class="anim-canvas-wrap" id="anim-canvas-wrap">
+                    <div id="anim-sheet-stage">
+                        <canvas id="anim-sheet-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Real-time Live Preview & Timeline -->
+            <div class="anim-right-col">
+                <div class="anim-section-title">Live Preview</div>
+                <div class="anim-preview-box">
+                    <canvas id="anim-preview-canvas"></canvas>
+                </div>
+                <div class="anim-preview-controls">
+                    <button class="anim-btn-icon" id="anim-play-btn" onclick="AnimStudio.togglePlay()">
+                        <i class="fa-solid fa-pause"></i>
+                    </button>
+                    <input type="range" min="1" max="30" value="8" oninput="AnimStudio.setFPS(this.value)" class="anim-slider">
+                    <span id="anim-fps-val" class="anim-badge">8 FPS</span>
+                </div>
+
+                <div class="anim-section-title" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Frames Timeline</span>
+                    <span id="anim-frame-count" class="anim-badge">0 Frames</span>
+                </div>
+                <div class="anim-timeline-list" id="anim-timeline-frames">
+                    <!-- Frame cards dynamically injected -->
+                </div>
+                <button class="anim-btn anim-btn-danger" onclick="AnimStudio.clearAllFrames()" style="margin-top: 8px; width: 100%;">
+                    <i class="fa-solid fa-trash-can"></i> Clear All Frames
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="css/main.css">
+<script src="js/site/2Dmain.js"></script>
+<script src="js/site/scene_editor.js"></script>
+<script src="js/site/blueprint_editor.js"></script>
+<script src="js/site/anim_studio.js"></script>
+<script src="js/site/scrollHelper.js"></script>
+</body>
+</html>

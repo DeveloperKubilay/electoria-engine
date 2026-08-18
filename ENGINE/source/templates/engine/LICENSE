@@ -1,0 +1,29 @@
+Electoria Engine License
+Copyright (c) 2024-2026 DeveloperKubilay / Electoria Engine Contributors.
+All Rights Reserved.
+
+==============================================================================
+TERMS AND CONDITIONS FOR USE, MODIFICATION, AND DISTRIBUTION
+==============================================================================
+
+1. GRANT OF LICENSE
+Subject to the terms and conditions of this License, the copyright holders grant you a personal, non-exclusive, non-transferable, royalty-free license to:
+   a. View, download, study, and inspect the source code of Electoria Engine for personal and educational purposes.
+   b. Modify and adapt the source code exclusively for your own personal, private, and internal non-commercial use.
+   c. Create, develop, compile, and distribute games and applications built USING the Electoria Engine.
+
+2. OWNERSHIP OF GAMES & CREATED CONTENT
+All intellectual property, assets, scripts, art, audio, and code created by YOU using the Electoria Engine belong solely to you. You retain 100% full ownership of games you develop with the engine, including the right to distribute, publish, monetize, and commercially sell your finished games without any royalty fees or licensing payments to Electoria Engine.
+
+3. RESTRICTIONS ON THE ENGINE (ALL RIGHTS RESERVED)
+You may NOT:
+   a. Redistribute, re-upload, mirror, host, sublicense, or share the Electoria Engine software, source code, binaries, or modified versions of the Engine itself to any public or third-party platform.
+   b. Sell, rent, lease, charge fees for, or commercially exploit Electoria Engine or any fork/derivative version of the editor or engine software.
+   c. Remove, alter, or obscure any copyright, trademark, logo, or proprietary notices contained within Electoria Engine.
+   d. Claim original authorship, re-brand, or market Electoria Engine (or modified versions of it) under another name.
+
+4. CONTRIBUTIONS
+Any contributions, pull requests, suggestions, or patches submitted to the official Electoria Engine repository shall be deemed licensed under this same License and become part of the collective work without any additional compensation.
+
+5. DISCLAIMER OF WARRANTY
+ELECTORIA ENGINE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="exit-button" id="exit" onclick="window.location = '/'">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <h1 class="title">Electoria Engine</h1>
+            <h2 class="subtitle" id="status">Select Platform for Build</h2>
+            <p class="return-link" id="returnbr" onclick="window.location = '/'">Return to engine</p>
+        </div>
+
+        <div class="platforms-container" id="outputs">
+            <div class="platform-card" onclick="build('windows')">
+                <div class="platform-icon">
+                    <i class="fa-brands fa-windows"></i>
+                </div>
+                <h3>Windows</h3>
+                <span class="platform-desc">Desktop build for Windows systems</span>
+            </div>
+            
+            <div class="platform-card" onclick="build('linux')">
+                <div class="platform-icon">
+                    <i class="fa-brands fa-linux"></i>
+                </div>
+                <h3>Linux</h3>
+                <span class="platform-desc">Desktop build for Linux distributions</span>
+            </div>
+            
+            <div class="platform-card" onclick="build('macos')">
+                <div class="platform-icon">
+                    <i class="fa-brands fa-apple"></i>
+                </div>
+                <h3>macOS</h3>
+                <span class="platform-desc">Desktop build for Apple computers</span>
+            </div>
+            
+            <div class="platform-card" onclick="build('android')">
+                <div class="platform-icon">
+                    <i class="fa-brands fa-android"></i>
+                </div>
+                <h3>Android</h3>
+                <span class="platform-desc">Mobile build for Android devices</span>
+            </div>
+            
+            <div class="platform-card" onclick="build('html')">
+                <div class="platform-icon">
+                    <i class="fa-brands fa-html5"></i>
+                </div>
+                <h3>HTML5</h3>
+                <span class="platform-desc">Web build for browsers</span>
+            </div>
+        </div>
+        
+        <div class="build-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let socket = io();
+        socket.on("connect_error", (err) => console.log(`Unable to connect to server error code:${err.message}`));
+        socket.on('connect',()=>console.log("Connected the panel!"))
+        
+        socket.on('client', function(msg){
+            if(msg.build == "package"){
+                document.getElementById("status").textContent = "Packaging...";
+                document.getElementById("status").className = "subtitle progress";
+                document.getElementById("progress").style.width = "50%";
+            } else if(msg.build == "finished"){
+                document.getElementById("status").textContent = "Build Complete! 🎉";
+                document.getElementById("status").className = "subtitle success";
+                document.getElementById("returnbr").style.display = "block";
+                document.getElementById("progress").style.width = "100%";
+            } else if(msg.build == "openurl"){
+                window.open(msg.url);
+            }
+        })
+
+        function build(type){
+            socket.emit("server",{build:type})
+            document.getElementById("status").textContent = "Preparing...";
+            document.getElementById("status").className = "subtitle progress";
+            document.getElementById("progress").style.width = "20%";
+            document.getElementById("exit").style.display = "none";
+            document.getElementById("outputs").innerHTML = `
+                <div class="thank-you">
+                    <lottie-player src="https://assets7.lottiefiles.com/packages/lf20_9aa9jvmz.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></lottie-player>
+                    <h2>Thanks for using Electoria Engine</h2>
+                    <p>Your build is being prepared...</p>
+                </div>
+            `;
+            
+            // Load Lottie animation script
+            var script = document.createElement('script');
+            script.src = "https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js";
+            document.head.appendChild(script);
+        }
+    </script>
+    
+<style>
+:root {
+    --primary: #ff8906;
+    --secondary: #f25f4c;
+    --dark: #0f0e17;
+    --dark-alt: #1f1d2c;
+    --light: #fffffe;
+    --gray: #a7a9be;
+    --purple: #7f5af0;
+    --green: #2cb67d;
+    --blue: #3da9fc;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--dark) 0%, var(--dark-alt) 100%);
+    color: var(--light);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 2rem;
+    position: relative;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    background: linear-gradient(to right, var(--primary), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+.subtitle {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.subtitle.progress {
+    color: var(--primary);
+}
+
+.subtitle.success {
+    color: var(--green);
+}
+
+.return-link {
+    display: none;
+    color: var(--blue);
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 1rem;
+    text-decoration: underline;
+    transition: all 0.3s ease;
+}
+
+.return-link:hover {
+    color: var(--purple);
+}
+
+.exit-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgba(242, 95, 76, 0.1);
+    color: var(--secondary);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.exit-button:hover {
+    background: var(--secondary);
+    color: var(--light);
+    transform: scale(1.05);
+}
+
+.platforms-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin-bottom: 2rem;
+}
+
+.platform-card {
+    background: rgba(31, 29, 43, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.platform-card:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, transparent, var(--primary), transparent);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.platform-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.platform-card:hover:before {
+    opacity: 1;
+}
+
+.platform-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.platform-card:hover .platform-icon {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.fa-windows {
+    color: #0078d7;
+}
+
+.fa-linux {
+    color: #f7c600;
+}
+
+.fa-apple {
+    color: #a3aaae;
+}
+
+.fa-android {
+    color: #a4c639;
+}
+
+.fa-html5 {
+    color: #e34f26;
+}
+
+.platform-card h3 {
+    font-size: 1.3rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.platform-desc {
+    font-size: 0.9rem;
+    color: var(--gray);
+    line-height: 1.4;
+}
+
+.build-progress {
+    width: 100%;
+    margin-top: 2rem;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, var(--primary), var(--purple));
+    border-radius: 10px;
+    transition: width 1s ease;
+}
+
+.thank-you {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+.thank-you h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 1rem 0;
+    background: linear-gradient(to right, var(--primary), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.thank-you p {
+    color: var(--gray);
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .platforms-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .platform-card {
+        padding: 1.5rem;
+    }
+    
+    .title {
+        font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 1.2rem;
+    }
+}
+</style>
+</body>
+</html>

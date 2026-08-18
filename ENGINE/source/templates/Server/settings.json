@@ -1,0 +1,6 @@
+{
+    "PORT": 3000,
+    "DB_PATH":"./database",
+    "TOKEN":"asdcascsa",
+    "ALGORITHM":"HS256"
+}

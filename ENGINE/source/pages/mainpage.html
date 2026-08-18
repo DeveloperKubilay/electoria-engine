@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div id="leftbar" class="cardl">
+  <div class="logo-container">
+    <img src="../icons/iconnb.png" id="icon">
+    <h2 id="version"></h2>
+  </div>
+  <h2 class="engine-title">Electoria Engine</h2>
+  <div class="button-container">
+    <button type="button3d" class="button3d button3d-hover" onclick="newgame(3)">
+      <div class="bg-top"><div class="bg-inner"></div></div>
+      <div class="bg-right"><div class="bg-inner"></div></div>
+      <div class="bg"><div class="bg-inner"></div></div>
+      <div class="text" >3D Game</div>
+    </button>
+    <button class="button2d" onclick="newgame(2)">
+      <span class="button2d-content">2D Game</span>
+      <div class="button2d-glow"></div>
+    </button>
+  </div>
+</div>
+<div id="rightbar">
+  <h2 class="section-title">Your games</h2>
+  <div class="search-container">
+    <input id="searchinput" onkeyup="searchgame()" placeholder="Search games..."></input>
+    <button id="searchcancel" onclick="clearsearchgames()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div id="gameMenu" class="menu">
+    <ul>
+      <li class="delete-option" onclick="sendengine({gmenu:{delete:tempdetail}})">
+        <i class="fas fa-trash"></i> Delete
+      </li>
+      <li onclick="sendengine({gmenu:{folder:tempdetail}})">
+        <i class="fas fa-folder-open"></i> Open folder
+      </li>
+    </ul>
+  </div>
+  <div id="games" class="games-container"></div>
+</div>
+
+<script>
+var games = []
+function sendengine(x){
+console.log(JSON.stringify({
+      toengine: true,
+        fullscreen:x.fullscreen,
+        center:x.center,
+        exit:x.exit,
+        appresize: x.appresize && {
+            x:x.appresize.x,
+            y:x.appresize.y,
+        },
+        inpage:x.inpage,
+        gmenu:x.gmenu && {
+          delete:x.gmenu.delete,
+          folder:x.gmenu.folder
+        },
+        opengame:x.opengame,
+        newgame:x.newgame
+    }))
+}
+sendengine({inpage:"mainpage"})
+function mygames(data) {
+  games = data
+  document.getElementById("games").innerHTML = ""
+    data.map((x)=>{
+    $("#games").append(`
+    <div class="card work" onclick="opengame('${x.name}')">
+    <div class="img-section">
+    <svg xmlns="http://www.w3.org/2000/svg" height="77" width="76"><path fill-rule="nonzero" fill="#696a6b" d="m60.91 71.846 12.314-19.892c3.317-5.36 3.78-13.818-2.31-19.908l-26.36-26.36c-4.457-4.457-12.586-6.843-19.908-2.31L4.753 15.69c-5.4 3.343-6.275 10.854-1.779 15.35a7.773 7.773 0 0 0 7.346 2.035l7.783-1.945a3.947 3.947 0 0 1 3.731 1.033l22.602 22.602c.97.97 1.367 2.4 1.033 3.732l-1.945 7.782a7.775 7.775 0 0 0 2.037 7.349c4.49 4.49 12.003 3.624 15.349-1.782Zm-24.227-46.12-1.891-1.892-1.892 1.892a2.342 2.342 0 0 1-3.312-3.312l1.892-1.892-1.892-1.891a2.342 2.342 0 0 1 3.312-3.312l1.892 1.891 1.891-1.891a2.342 2.342 0 0 1 3.312 3.312l-1.891 1.891 1.891 1.892a2.342 2.342 0 0 1-3.312 3.312Zm14.19 14.19a2.343 2.343 0 1 1 3.315-3.312 2.343 2.343 0 0 1-3.314 3.312Zm0 7.096a2.343 2.343 0 0 1 3.313-3.312 2.343 2.343 0 0 1-3.312 3.312Zm7.096-7.095a2.343 2.343 0 1 1 3.312 0 2.343 2.343 0 0 1-3.312 0Zm0 7.095a2.343 2.343 0 0 1 3.312-3.312 2.343 2.343 0 0 1-3.312 3.312Z"></path></svg>                </div>
+    <div class="card-desc">
+    <div class="card-header">
+    <div class="card-title">${x.type}</div>
+    <div class="card-menu" onclick="detail(event,'${x.name}')">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+    <div class="card-time">${x.name}</div>
+    <p class="recent">${moment(x.latesttime).fromNow()}</p>
+  </div></div>`);
+})
+}
+function searchgame(){
+  if(!document.getElementById("searchinput").value) {
+    document.getElementById("searchcancel").style.display = "none";
+    }else{
+    document.getElementById("searchcancel").style.display = "inline";
+  }
+  document.getElementById("games").innerHTML = ""
+  games.map((x)=>{
+				if (x.name.toLowerCase().includes(document.getElementById("searchinput").value.toLowerCase())) {
+          $("#games").append(`
+<div class="card work" onclick="opengame('${x.name}')">
+    <div class="img-section">
+    <svg xmlns="http://www.w3.org/2000/svg" height="77" width="76"><path fill-rule="nonzero" fill="#696a6b" d="m60.91 71.846 12.314-19.892c3.317-5.36 3.78-13.818-2.31-19.908l-26.36-26.36c-4.457-4.457-12.586-6.843-19.908-2.31L4.753 15.69c-5.4 3.343-6.275 10.854-1.779 15.35a7.773 7.773 0 0 0 7.346 2.035l7.783-1.945a3.947 3.947 0 0 1 3.731 1.033l22.602 22.602c.97.97 1.367 2.4 1.033 3.732l-1.945 7.782a7.775 7.775 0 0 0 2.037 7.349c4.49 4.49 12.003 3.624 15.349-1.782Zm-24.227-46.12-1.891-1.892-1.892 1.892a2.342 2.342 0 0 1-3.312-3.312l1.892-1.892-1.892-1.891a2.342 2.342 0 0 1 3.312-3.312l1.892 1.891 1.891-1.891a2.342 2.342 0 0 1 3.312 3.312l-1.891 1.891 1.891 1.892a2.342 2.342 0 0 1-3.312 3.312Zm14.19 14.19a2.343 2.343 0 1 1 3.315-3.312 2.343 2.343 0 0 1-3.314 3.312Zm0 7.096a2.343 2.343 0 0 1 3.313-3.312 2.343 2.343 0 0 1-3.312 3.312Zm7.096-7.095a2.343 2.343 0 1 1 3.312 0 2.343 2.343 0 0 1-3.312 0Zm0 7.095a2.343 2.343 0 0 1 3.312-3.312 2.343 2.343 0 0 1-3.312 3.312Z"></path></svg>                </div>
+    <div class="card-desc">
+    <div class="card-header">
+    <div class="card-title">${x.type}</div>
+    <div class="card-menu" onclick="detail(event,'${x.name}')">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+    <div class="card-time">${x.name}</div>
+    <p class="recent">${moment(x.latesttime).fromNow()}</p>
+  </div></div>
+`);
+				}
+			})
+}
+
+function opengame(name){
+  sendengine({opengame:name})
+  document.body.innerHTML = ""
+  setTimeout(
+    sendengine({
+      appresize:{
+        x: "auto",
+        y: "auto",
+      },
+      center:true
+    }) 
+  ,1000)
+  setTimeout(window.location = "http://localhost:8819",2000)
+}
+
+var tempdetail = ""
+function detail(e, x){
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  tempdetail = x;
+  var myMenu = document.getElementById("gameMenu");
+  var clientX = e ? e.clientX : (window.event ? window.event.clientX : 100);
+  var clientY = e ? e.clientY : (window.event ? window.event.clientY : 100);
+  myMenu.style.left = (clientX - 100) + "px";
+  myMenu.style.top = (clientY + 6) + "px";
+  myMenu.style.display = "block";
+  document.removeEventListener("click", hideMenuOnClick);
+  setTimeout(() => {
+    document.addEventListener("click", hideMenuOnClick);
+  }, 50);
+}
+function hideMenuOnClick(event) {
+  var myMenu = document.getElementById("gameMenu");
+  myMenu.style.display = "none";
+  tempdetail = ""
+  document.removeEventListener("click", hideMenuOnClick);
+}
+function clearsearchgames(){
+  document.getElementById("searchinput").value = ""
+  document.getElementById("searchcancel").style.display = "none";
+  document.getElementById("games").innerHTML = ""
+  games.map((x)=>{
+          $("#games").append(`<div class="card work" onclick="opengame('${x.name}')">
+    <div class="img-section">
+    <svg xmlns="http://www.w3.org/2000/svg" height="77" width="76"><path fill-rule="nonzero" fill="#696a6b" d="m60.91 71.846 12.314-19.892c3.317-5.36 3.78-13.818-2.31-19.908l-26.36-26.36c-4.457-4.457-12.586-6.843-19.908-2.31L4.753 15.69c-5.4 3.343-6.275 10.854-1.779 15.35a7.773 7.773 0 0 0 7.346 2.035l7.783-1.945a3.947 3.947 0 0 1 3.731 1.033l22.602 22.602c.97.97 1.367 2.4 1.033 3.732l-1.945 7.782a7.775 7.775 0 0 0 2.037 7.349c4.49 4.49 12.003 3.624 15.349-1.782Zm-24.227-46.12-1.891-1.892-1.892 1.892a2.342 2.342 0 0 1-3.312-3.312l1.892-1.892-1.892-1.891a2.342 2.342 0 0 1 3.312-3.312l1.892 1.891 1.891-1.891a2.342 2.342 0 0 1 3.312 3.312l-1.891 1.891 1.891 1.892a2.342 2.342 0 0 1-3.312 3.312Zm14.19 14.19a2.343 2.343 0 1 1 3.315-3.312 2.343 2.343 0 0 1-3.314 3.312Zm0 7.096a2.343 2.343 0 0 1 3.313-3.312 2.343 2.343 0 0 1-3.312 3.312Zm7.096-7.095a2.343 2.343 0 1 1 3.312 0 2.343 2.343 0 0 1-3.312 0Zm0 7.095a2.343 2.343 0 0 1 3.312-3.312 2.343 2.343 0 0 1-3.312 3.312Z"></path></svg>                </div>
+    <div class="card-desc">
+    <div class="card-header">
+    <div class="card-title">${x.type}</div>
+    <div class="card-menu" onclick="detail(event,'${x.name}')">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    </div>
+    <div class="card-time">${x.name}</div>
+    <p class="recent">${moment(x.latesttime).fromNow()}</p>
+  </div></div>`);
+  })
+}
+
+function version(data) {document.querySelector("#version").innerHTML = "Version "+data.version}
+function newgame(data){
+  if (data === 3) {
+    alert("3D Game mode is not yet supported in this version. Stay tuned for future updates!");
+    return;
+  }
+  sendengine({
+    newgame:data
+  })
+}
+</script>
+
+<style>
+body {
+  background: linear-gradient(135deg, #0f0e17 0%, #1f1d2c 100%);
+  font-family: 'Poppins', sans-serif;
+  color: #fffffe;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Left sidebar styles */
+#leftbar {
+  left: 0;
+  padding: 2rem;
+  width: 28%;
+  height: calc(100% - 4rem);
+  border-radius: 20px;
+  background: rgba(31, 29, 43, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+#icon {
+  width: 120px;
+  height: auto;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+  transition: transform 0.3s ease;
+}
+
+#icon:hover {
+  transform: scale(1.05);
+}
+
+#version {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 0.8rem;
+  color: #a7a9be;
+  font-weight: 400;
+}
+
+.engine-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 0.5rem 0 3rem 0;
+  background: linear-gradient(to right, #ff8906, #f25f4c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+}
+
+/* 3D Button Styles */
+.button3d {
+  display: block;
+  padding: 1.2em 1.7em;
+  background: transparent;
+  outline: none;
+  border: 0;
+  color: #fffffe;
+  letter-spacing: 0.1em;
+  font-family: 'Poppins', sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+  z-index: 1;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.5s;
+}
+
+.button3d .bg-top {
+  position: absolute;
+  height: 10px;
+  background: #ff8906;
+  bottom: 100%;
+  left: 5px;
+  right: -5px;
+  transform: skew(-45deg, 0);
+  margin: 0;
+  transition: all 0.4s;
+}
+
+.button3d .bg-top .bg-inner {
+  bottom: 0;
+}
+
+.button3d .bg {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  top: 0;
+  right: 0;
+  background: #ff8906;
+  transition: all 0.4s;
+}
+
+.button3d .bg-right {
+  position: absolute;
+  background: #ff8906;
+  top: -5px;
+  z-index: 0;
+  bottom: 5px;
+  width: 10px;
+  left: 100%;
+  transform: skew(0, -45deg);
+  transition: all 0.4s;
+}
+
+.button3d .bg-right .bg-inner {
+  left: 0;
+}
+
+.button3d .bg-inner {
+  background: #1f1d2c;
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 2px;
+  bottom: 2px;
+}
+
+.button3d .text {
+  position: relative;
+  transition: all 0.4s;
+}
+
+.button3d:hover .bg-inner {
+  background: #ff8906;
+  transition: all 0.4s;
+}
+
+.button3d:hover .text {
+  color: #1f1d2c;
+  transition: all 0.4s;
+}
+
+.button3d:hover .bg-right,
+.button3d:hover .bg,
+.button3d:hover .bg-top {
+  background: #fffffe;
+}
+
+.button3d:active {
+  animation: bounce .1s linear;
+}
+
+/* 2D Button Styles */
+.button2d {
+  position: relative;
+  overflow: hidden;
+  height: 4rem;
+  padding: 0 2rem;
+  border-radius: 12px;
+  background: transparent;
+  border: 2px solid rgba(131, 56, 236, 0.8);
+  background-size: 400%;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(131, 56, 236, 0.3);
+  width: 100%;
+}
+
+.button2d::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  width: 100%;
+  height: inherit;
+  border-radius: inherit;
+  background: linear-gradient(
+    82.3deg,
+    rgba(150, 93, 233, 1) 10.8%,
+    rgba(99, 88, 238, 1) 94.3%
+  );
+  transition: all 0.475s;
+  z-index: -1;
+}
+
+.button2d:hover::before {
+  transform: scaleX(1);
+}
+
+.button2d-content {
+  position: relative;
+  z-index: 1;
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.button2d:hover {
+  box-shadow: 0 0 20px rgba(131, 56, 236, 0.6);
+  transform: translateY(-2px);
+}
+
+.button2d-glow {
+  position: absolute;
+  width: 40px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  top: 0;
+  left: -100px;
+  transform: skewX(-30deg);
+  animation: slide 3s infinite;
+  filter: blur(3px);
+}
+
+@keyframes slide {
+  0% { left: -100px; }
+  20% { left: 120%; }
+  100% { left: 120%; }
+}
+
+/* Right section styles */
+#rightbar {
+  position: absolute;
+  top: 0;
+  left: 35%;
+  width: 60%;
+  height: 100%;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: #fffffe;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  width: 100%;
+  position: relative;
+}
+
+#searchinput {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  color: #fffffe;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+#searchinput:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+#searchcancel {
+  position: absolute;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #a7a9be;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  display: none;
+}
+
+#searchcancel:hover {
+  color: #fffffe;
+  transform: scale(1.1);
+}
+
+.games-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+/* Game card styles */
+.card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 155px;
+  border-radius: 12px;
+  color: #fff;
+  display: grid;
+  cursor: pointer;
+  grid-template-rows: 55px 1fr;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.card:hover .img-section {
+  transform: scale(1.05);
+}
+
+.card-desc {
+  border-radius: 0 0 12px 12px;
+  padding: 12px 14px;
+  position: relative;
+  top: 0;
+  display: grid;
+  gap: 4px;
+  background: rgba(31, 29, 43, 0.95);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-time {
+  font-size: 1.1em;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: #fffffe;
+}
+
+.img-section {
+  transition: all 0.3s ease;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(45deg, #252333, #343144);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img-section svg {
+  height: 42px;
+  width: 42px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 25px;
+}
+
+.card-title {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: #ff8906;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 8px;
+  gap: 3.5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+
+.card-menu:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.card svg {
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.1));
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #fffffe;
+  pointer-events: none;
+}
+
+.recent {
+  line-height: 1;
+  font-size: 0.8em;
+  color: #a7a9be;
+  margin: 0;
+}
+
+/* Context menu styles */
+.menu {
+  display: none;
+  position: fixed;
+  z-index: 999999;
+  background: #1f1d2c;
+  padding: 0.5rem 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+  min-width: 140px;
+}
+
+.menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menu ul li {
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu ul li:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.delete-option {
+  color: #f25f4c;
+}
+
+.menu ul li i {
+  font-size: 0.9rem;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(167, 169, 190, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(167, 169, 190, 0.5);
+}
+
+@keyframes bounce {
+  50% {transform: scale(0.98);}
+}
+</style>
+</body>
+</html>

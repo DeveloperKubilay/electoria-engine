@@ -169,6 +169,7 @@ function editrightbar(file, type, tempdata) {
   const entityColor = tempdata.color || (isText ? "#fffffe" : "#ff8906");
   const reverseChecked = tempdata.reverse ? "checked" : "";
   const physicChecked = tempdata.physic.status ? "checked" : "";
+  const inscreenChecked = tempdata.inscreen === true || tempdata.inscreen === "true" ? "checked" : "";
   const shadowChecked = tempdata.shadow.status ? "checked" : "";
 
   document.querySelector(".rightbar").innerHTML = `
@@ -269,7 +270,14 @@ function editrightbar(file, type, tempdata) {
                 <input type="text" value="${tempdata.image || ''}" class="prop-input" id="rtimage" placeholder="filename.png">
               </div>
             </div>
-            <input type="hidden" id="rtstype" value="${tempdata.stype || ''}">
+            <div class="prop-field">
+              <label class="prop-label">Shape Type</label>
+              <select class="prop-input" id="rtstype" style="height: 36px; padding: 4px 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: var(--light);">
+                <option value="fillrect" ${tempdata.stype === 'fillrect' || !tempdata.stype ? 'selected' : ''}>Fill Rectangle</option>
+                <option value="strokerect" ${tempdata.stype === 'strokerect' ? 'selected' : ''}>Stroke Rectangle</option>
+                <option value="arc" ${tempdata.stype === 'arc' || tempdata.stype === 'circle' ? 'selected' : ''}>Circle / Arc</option>
+              </select>
+            </div>
             <div class="prop-toggle-row">
               <span class="prop-label">Flip Horizontal (Reverse)</span>
               <label class="toggle">
@@ -316,16 +324,24 @@ function editrightbar(file, type, tempdata) {
           </div>
         </div>
         ` : `
-        <!-- 3. Physics & Collision Card -->
+        <!-- 3. Physics & Boundaries Card -->
         <div class="prop-card">
           <div class="prop-card-header">
-            <i class="fa-solid fa-gauge-high"></i> Physics & Collision
+            <i class="fa-solid fa-gauge-high"></i> Physics & Boundaries
           </div>
           <div class="prop-card-body">
             <div class="prop-toggle-row">
               <span class="prop-label">Enable Physics</span>
               <label class="toggle">
                 <input type="checkbox" id="rpstatus" ${physicChecked}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="prop-toggle-row">
+              <span class="prop-label">Keep In Screen (inscreen)</span>
+              <label class="toggle">
+                <input type="checkbox" id="rtinscreen" ${inscreenChecked}>
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -344,6 +360,27 @@ function editrightbar(file, type, tempdata) {
               </div>
             </div>
 
+            <div class="prop-row">
+              <div class="prop-field" style="flex: 1;">
+                <label class="prop-label">Gravity</label>
+                <div class="prop-input-wrap">
+                  <input type="number" step="0.1" value="${tempdata.physic.gravity !== undefined ? tempdata.physic.gravity : ''}" class="prop-input" id="rpgravity" placeholder="0">
+                </div>
+              </div>
+              <div class="prop-field" style="flex: 1;">
+                <label class="prop-label">Friction X</label>
+                <div class="prop-input-wrap">
+                  <input type="number" step="0.05" value="${tempdata.physic.xfriction !== undefined ? tempdata.physic.xfriction : ''}" class="prop-input" id="rpxfriction" placeholder="0">
+                </div>
+              </div>
+              <div class="prop-field" style="flex: 1;">
+                <label class="prop-label">Friction Y</label>
+                <div class="prop-input-wrap">
+                  <input type="number" step="0.05" value="${tempdata.physic.yfriction !== undefined ? tempdata.physic.yfriction : ''}" class="prop-input" id="rpyfriction" placeholder="0">
+                </div>
+              </div>
+            </div>
+
             <div class="prop-field">
               <label class="prop-label">Collision Type (0: Off, 1: Solid)</label>
               <div class="prop-input-wrap">
@@ -354,7 +391,48 @@ function editrightbar(file, type, tempdata) {
         </div>
         `}
 
-        <input type="hidden" id="rsstatus" value="${shadowChecked ? 'true' : 'false'}">
+        <!-- 4. Drop Shadow Card -->
+        <div class="prop-card">
+          <div class="prop-card-header">
+            <i class="fa-solid fa-cloud-moon"></i> Drop Shadow
+          </div>
+          <div class="prop-card-body">
+            <div class="prop-toggle-row">
+              <span class="prop-label">Enable Shadow</span>
+              <label class="toggle">
+                <input type="checkbox" id="rsstatus" ${shadowChecked}>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="prop-field">
+              <label class="prop-label">Shadow Color</label>
+              <div class="prop-input-wrap">
+                <input type="text" value="${tempdata.shadow.color || ''}" class="prop-input" id="rscolor" placeholder="rgba(0,0,0,0.5)">
+              </div>
+            </div>
+            <div class="prop-row">
+              <div class="prop-field" style="flex: 1;">
+                <label class="prop-label">Blur</label>
+                <div class="prop-input-wrap">
+                  <input type="number" value="${tempdata.shadow.blur || 0}" class="prop-input" id="rsblur">
+                </div>
+              </div>
+              <div class="prop-field" style="flex: 1;">
+                <label class="prop-label">Offset X</label>
+                <div class="prop-input-wrap">
+                  <input type="number" value="${tempdata.shadow.x || 0}" class="prop-input" id="rsx">
+                </div>
+              </div>
+              <div class="prop-field" style="flex: 1;">
+                <label class="prop-label">Offset Y</label>
+                <div class="prop-input-wrap">
+                  <input type="number" value="${tempdata.shadow.y || 0}" class="prop-input" id="rsy">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <input type="hidden" id="backgroundposition" value="${tempdata.backgroundposition ? 'true' : 'false'}">
         <input type="hidden" id="reval" value="${tempdata.eval || ''}">
         <input type="hidden" id="ranimate" value='${JSON.stringify(tempdata.animate || [])}'>
@@ -389,6 +467,16 @@ function updaterightbar(originalName, entityType) {
     opacity: document.getElementById("rtopacity") ? Number(document.getElementById("rtopacity").value) : 1
   };
 
+  // Shadow output
+  const shadowStatus = document.getElementById("rsstatus") ? document.getElementById("rsstatus").checked : false;
+  output.shadow = {
+    status: shadowStatus,
+    color: document.getElementById("rscolor") ? document.getElementById("rscolor").value : "",
+    blur: document.getElementById("rsblur") ? Number(document.getElementById("rsblur").value) : 0,
+    x: document.getElementById("rsx") ? Number(document.getElementById("rsx").value) : 0,
+    y: document.getElementById("rsy") ? Number(document.getElementById("rsy").value) : 0
+  };
+
   if (isText) {
     output.type = "text";
     output.text = document.getElementById("rttext") ? document.getElementById("rttext").value : "Hello World";
@@ -400,14 +488,19 @@ function updaterightbar(originalName, entityType) {
       y: document.getElementById("rcy") ? Number(document.getElementById("rcy").value) : 50
     };
     output.image = document.getElementById("rtimage") ? document.getElementById("rtimage").value : "";
+    output.stype = document.getElementById("rtstype") ? document.getElementById("rtstype").value : "fillrect";
     output.reverse = document.getElementById("rtreverse") ? document.getElementById("rtreverse").checked : false;
+    output.inscreen = document.getElementById("rtinscreen") ? document.getElementById("rtinscreen").checked : false;
     output.collision = document.getElementById("rtcollision") ? Number(document.getElementById("rtcollision").value) : 1;
 
     const physicStatus = document.getElementById("rpstatus") ? document.getElementById("rpstatus").checked : false;
     output.physic = {
       status: physicStatus,
       x: document.getElementById("rpx") ? Number(document.getElementById("rpx").value) : 0,
-      y: document.getElementById("rpy") ? Number(document.getElementById("rpy").value) : 0
+      y: document.getElementById("rpy") ? Number(document.getElementById("rpy").value) : 0,
+      gravity: document.getElementById("rpgravity") && document.getElementById("rpgravity").value !== "" ? Number(document.getElementById("rpgravity").value) : "",
+      xfriction: document.getElementById("rpxfriction") && document.getElementById("rpxfriction").value !== "" ? Number(document.getElementById("rpxfriction").value) : "",
+      yfriction: document.getElementById("rpyfriction") && document.getElementById("rpyfriction").value !== "" ? Number(document.getElementById("rpyfriction").value) : ""
     };
 
     const animVal = document.getElementById("ranimate") ? document.getElementById("ranimate").value : "";

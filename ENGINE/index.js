@@ -196,25 +196,23 @@ app.on('ready', function() {
           const openType = parsedNewGame.open || "blank";
 
           if (openType.endsWith("blank")) {
-            // Synchronous Offline Template Copying
-            const engineTplDir = path.join(__dirname, "./source/templates/engine");
-            if (fs.existsSync(engineTplDir)) {
-              if (fs.existsSync(path.join(engineTplDir, "engine.js"))) {
-                fse.copySync(path.join(engineTplDir, "engine.js"), path.join(gameDir, "Engine/engine.js"));
+            // Synchronous Offline Template Copying with fallback
+            const copyTplFile = (fileName, targetRel) => {
+              const localTpl = path.join(__dirname, "./source/templates/engine", fileName);
+              const rootTpl = path.join(__dirname, "../", fileName);
+              const dest = path.join(gameDir, targetRel);
+              if (fs.existsSync(localTpl)) {
+                fse.copySync(localTpl, dest);
+              } else if (fs.existsSync(rootTpl)) {
+                fse.copySync(rootTpl, dest);
               }
-              if (fs.existsSync(path.join(engineTplDir, "eap.js"))) {
-                fse.copySync(path.join(engineTplDir, "eap.js"), path.join(gameDir, "Engine/eap.js"));
-              }
-              if (fs.existsSync(path.join(engineTplDir, "LICENSE"))) {
-                fse.copySync(path.join(engineTplDir, "LICENSE"), path.join(gameDir, "Engine/LICENSE"));
-              }
-              if (fs.existsSync(path.join(engineTplDir, "onload.js"))) {
-                fse.copySync(path.join(engineTplDir, "onload.js"), path.join(gameDir, "onload.js"));
-              }
-              if (fs.existsSync(path.join(engineTplDir, "script.js"))) {
-                fse.copySync(path.join(engineTplDir, "script.js"), path.join(gameDir, "Scripts/script.js"));
-              }
-            }
+            };
+
+            copyTplFile("engine.js", "Engine/engine.js");
+            copyTplFile("eap.js", "Engine/eap.js");
+            copyTplFile("LICENSE", "Engine/LICENSE");
+            copyTplFile("onload.js", "onload.js");
+            copyTplFile("script.js", "Scripts/script.js");
 
             // Create default ingame.html
             const defaultIngameHtml = `<!DOCTYPE html>
